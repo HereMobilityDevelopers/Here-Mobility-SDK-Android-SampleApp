@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="58dp"
+    android:orientation="horizontal"
+    android:paddingBottom="8dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="8dp"
+    >
+
+  <TextView
+      android:id="@+id/address_list_item_distance"
+      style="@style/PlainTextSmallCenterGray"
+      android:layout_width="wrap_content"
+      android:layout_height="match_parent"
+      android:drawablePadding="2dp"
+      android:drawableTop="@drawable/pin"
+      tools:text="12km"
+      />
+
+  <LinearLayout
+      android:id="@+id/location"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:layout_marginLeft="12dp"
+      android:layout_marginStart="12dp"
+      android:gravity="center_vertical"
+      android:orientation="vertical"
+      >
+
+    <TextView
+        android:id="@+id/address_list_item_address"
+        style="@style/PlainTextMediumLeft"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:gravity="start|center_vertical"
+        android:maxLines="1"
+        tools:text="123 St. Lembethway"
+        />
+
+    <TextView
+        android:id="@+id/address_list_item_details"
+        style="@style/PlainTextSmallLeft"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="bottom"
+        android:ellipsize="end"
+        android:gravity="start|center_vertical"
+        android:maxLines="1"
+        tools:text="123 St. Lembethway"
+        />
+  </LinearLayout>
+
+
+</LinearLayout>

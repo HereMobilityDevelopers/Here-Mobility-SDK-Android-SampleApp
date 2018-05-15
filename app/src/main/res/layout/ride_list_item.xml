@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/layout_vertical_standard_value"
+    android:background="@drawable/shadow_bg"
+    android:divider="@drawable/thin_horizontal_divider"
+    android:showDividers="middle">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="@dimen/layout_horizontal_standard_value">
+
+        <ImageView
+            android:layout_width="41dp"
+            android:layout_height="41dp"
+            android:scaleType="centerInside"
+            android:layout_marginRight="10dp"
+            tools:src="@drawable/ic_supplier_placeholder"
+            android:layout_marginEnd="10dp"
+            />
+
+        <TextView
+            android:id="@+id/ride_item_supplier_name_view"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.66"
+            android:layout_marginEnd="16dp"
+            android:layout_marginRight="16dp"
+            android:ellipsize="end"
+            style="@style/PlainTextBigLeft"
+            android:gravity="center_vertical"
+            tools:text="Freeway Taxi With Very long fleet name goes here and here and here"
+            app:autoSizeTextType="uniform"
+            app:autoSizeMinTextSize="@dimen/autosizeTextMinTextSize"
+            android:maxLines="2"
+            />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:showDividers="middle"
+        android:divider="@drawable/thin_vertical_divider"
+        android:baselineAligned="false">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginTop="13dp"
+            android:layout_marginBottom="13dp">
+
+            <TextView
+                style="@style/PlainTextMediumCenter"
+                android:id="@+id/ride_item_estimated_price_view"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal"
+                tools:text="$22"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal"
+                style="@style/PlainTextSmallCenterGray"
+                android:text="@string/estimated_price"
+                android:drawablePadding="6dp"
+                android:drawableLeft="@drawable/price"
+                android:drawableStart="@drawable/price"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginTop="13dp"
+            android:layout_marginBottom="13dp">
+
+            <TextView
+                style="@style/PlainTextMediumCenter"
+                android:id="@+id/ride_item_eta_view"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal"
+                tools:text="18:36"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal"
+                style="@style/PlainTextSmallCenterGray"
+                android:text="@string/eta"
+                android:drawablePadding="6dp"
+                android:drawableStart="@drawable/clock"
+                android:drawableLeft="@drawable/clock"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

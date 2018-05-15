@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/booking_leave_now"
+        android:title="@string/leave_now" />
+    <item android:id="@+id/booking_leave_later"
+        android:title="@string/leave_later"/>
+</menu>

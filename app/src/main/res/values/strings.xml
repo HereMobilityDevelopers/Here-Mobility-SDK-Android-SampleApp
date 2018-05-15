@@ -1,0 +1,54 @@
+<resources>
+    <string name="app_name">sampleApp</string>
+
+
+    <string name="here_sdk_app_id">{YOUR_SDK_APP_ID}</string>
+    <string name="here_sdk_app_secret">{YOUR_SDK_APP_SECRET}</string>
+
+    <string name="from_where">From where?</string>
+    <string name="where_to">Where to?</string>
+    <string name="show_offers">Show Rides</string>
+    <string name="show_future_rides">Active Rides</string>
+
+    <!--Enter rides details view commit-->
+    <string name="suitcases">Suitcases</string>
+    <string name="wheelchair">Wheelchair</string>
+    <string name="more">More</string>
+    <string name="passengers">Passengers</string>
+    <string name="child_seats">Child Seat</string>
+    <string name="ride_details">Ride Details</string>
+    <string name="note_for_driver">Notes for the driver</string>
+    <string name="ride_details_hint_phone">Phone Number *</string>
+    <string name="ride_details_hint_name">Name *</string>
+    <string name="your_details">Your details</string>
+    <string name="fill_mandatory_fields">Please fill in all mandatory fields</string>
+    <string name="pickup_address_hint">Getting your location…</string>
+    <string name="ride_options">Ride Options</string>
+
+    <string name="eta">ETA</string>
+    <string name="estimated_price">Estimated Price</string>
+    <string name="book">Book</string>
+
+    <string name="ride_status_activity_title">Ride Status</string>
+    <string name="feedback">Feedback</string>
+    <string name="booked">Booked</string>
+    <string name="call_driver">Call driver</string>
+    <string name="not_available_initial">N/A</string>
+    <string name="cancel_ride">Cancel Ride</string>
+    <string name="book_now">Book Now?</string>
+    <string name="leave_now">Leave now</string>
+    <string name="leave_later">Set your departure time</string>
+    <string name="invalid_prebooking_time">Please select pre-booking date that is at least 30 minutes from now</string>
+    <string name="prebook_time_picker_title">Must be at least 30 minutes from now.</string>
+
+    <string name="autocomplete_title">Autocomplete</string>
+    <string name="show_offers_title">Show Rides</string>
+    <string name="ride_status_title">Ride Status</string>
+    <string name="public_transport_details">Details</string>
+    <string name="public_transport">Public Transport</string>
+    <string name="active_rides">Active Rides</string>
+    <string name="error_no_ride_options_results">No results found. Please try to search a ride again.</string>
+    <string name="next">Next</string>
+
+
+</resources>

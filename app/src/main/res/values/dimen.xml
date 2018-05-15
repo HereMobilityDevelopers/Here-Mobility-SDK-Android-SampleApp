@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <dimen name="search_address_edit_text_height">46dp</dimen>
+    <dimen name="layout_horizontal_standard_value">16dp</dimen>
+    <dimen name="layout_vertical_standard_value">8dp</dimen>
+    <dimen name="GetRideContentPaddingHorizontal">25dp</dimen>
+    <dimen name="RideDetailsInnerMargin">10dp</dimen>
+    <dimen name="GetRideRideConstraintItemHeight">60dp</dimen>
+    <dimen name="kswThumbSize">33dp</dimen>
+    <dimen name="GetRideRideButtonHeight">44dp</dimen>
+    <dimen name="autosizeTextMinTextSize">16sp</dimen>
+
+
+</resources>

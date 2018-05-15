@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".get_rides.GetRidesActivity">
+
+        <fragment
+            android:id="@+id/map_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/show_rides_button"
+            android:name="com.here.mobility.sdk.map.MapFragment"
+            />
+        <include
+            layout="@layout/view_search_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:elevation="4dp"
+            android:layout_margin="16dp"
+            android:layout_marginTop="16dp"
+            tools:layout_editor_absoluteX="16dp"
+            tools:targetApi="lollipop"/>
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/show_future_rides_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/show_rides_button"
+        android:layout_margin="@dimen/layout_vertical_standard_value"
+        android:background="@color/charcoal_grey_50"
+        android:text="@string/show_future_rides"
+        android:textColor="@color/white"
+        android:visibility="gone" />
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/show_rides_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="10dp"
+        android:background="@color/aqua_marine"
+        android:text="@string/next"
+        android:textColor="@color/white" />
+
+    <FrameLayout
+        android:id="@+id/ride_details_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:elevation="5dp"
+        tools:ignore="UnusedAttribute" />
+</RelativeLayout>

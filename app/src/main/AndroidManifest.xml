@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.here.mobility.sdk.sampleapp">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:name=".SampleApplication"
+        android:theme="@style/AppTheme">
+        <activity android:name=".get_rides.GetRidesActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@style/AppThemeNoTitle">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".geocoding.AutoCompleteActivity" />
+        <activity android:name=".ride_offers.RideOffersActivity" />
+        <activity android:name=".ride_status.RideStatusActivity" />
+        <activity android:name=".rides.ActiveRidesActivity" />
+        <activity android:name=".public_transport.PublicTransportActivity" />
+
+        <meta-data
+            android:name="com.here.mobility.sdk.APP_KEY"
+            android:value="@string/here_sdk_app_id" />
+
+        <meta-data
+            android:name="HERE_SDK_APP_SECRET"
+            android:value="@string/here_sdk_app_secret" />
+    </application>
+
+</manifest>

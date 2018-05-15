@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="107dp"
+    android:layout_height="32dp"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:background="@drawable/sharp_corner_white"
+    android:weightSum="107">
+
+    <ImageView
+        android:id="@+id/counter_view_decrement_button"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="30"
+        android:scaleType="center"
+        android:clickable="false"
+        android:src="@drawable/minus_disable"/>
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@color/divider"/>
+
+    <TextView
+        android:id="@+id/counter_view_value_text_view"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="45"
+        android:gravity="center"
+        tools:text="0"
+        android:textColor="@color/charcoal_grey"
+        android:fontFamily="sans-serif-light" />
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@color/divider"/>
+
+    <ImageView
+        android:id="@+id/counter_view_increment_button"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="30"
+        android:scaleType="center"
+        android:src="@drawable/plus"/>
+
+</LinearLayout>

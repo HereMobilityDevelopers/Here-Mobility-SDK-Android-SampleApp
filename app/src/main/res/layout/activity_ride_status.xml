@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:id="@+id/root"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:id="@+id/ride_status_scroll_view"
+        android:layout_width="match_parent"
+        android:layout_weight="1"
+        android:layout_height="0dp"
+        android:fillViewport="false">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <LinearLayout
+                android:id="@+id/ride_details_linear"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:background="@drawable/shadow_bg"
+                android:divider="@drawable/thin_horizontal_divider"
+                android:orientation="vertical"
+                android:showDividers="middle">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:layout_marginEnd="15dp"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="15dp"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="16dp"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/supplierLogo"
+                        android:layout_width="41dp"
+                        android:layout_height="41dp"
+                        android:scaleType="centerInside"
+                        tools:src="@drawable/ic_supplier_placeholder" />
+
+                    <TextView
+                        android:id="@+id/supplierNameView"
+                        style="@style/TitleTitle2Left"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="16dp"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:gravity="center_vertical"
+                        android:maxLines="2"
+                        tools:text="Freeway Taxi and a long fleet name goes here and here and" />
+
+                    <ImageView
+                        android:id="@+id/bookedLabelImage"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:src="@drawable/v" />
+
+                    <TextView
+                        android:id="@+id/bookedLabelView"
+                        style="@style/PlainTextGreen"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="4dp"
+                        android:text="@string/booked" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ridePriceAndEta"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="false"
+                    android:divider="@drawable/thin_vertical_divider"
+                    android:orientation="horizontal"
+                    android:showDividers="middle">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/estimatedPriceView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center_horizontal"
+                            tools:text="$22" />
+
+                        <TextView
+                            style="@style/PlainTextSmallCenterGray"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center_horizontal"
+                            android:drawableLeft="@drawable/price"
+                            android:drawablePadding="6dp"
+                            android:drawableStart="@drawable/price"
+                            android:text="@string/estimated_price" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/etaView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center_horizontal"
+                            tools:text="18:36" />
+
+                        <TextView
+                            style="@style/PlainTextSmallCenterGray"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center_horizontal"
+                            android:drawableLeft="@drawable/clock"
+                            android:drawablePadding="6dp"
+                            android:drawableStart="@drawable/clock"
+                            android:text="@string/eta" />
+
+                    </LinearLayout>
+
+
+                </LinearLayout>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    >
+
+                    <ImageView
+                        android:id="@+id/driver_photo_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:layout_margin="16dp"
+                        android:src="@drawable/ic_driver_placeholder" />
+
+                    <TextView
+                        android:id="@+id/driverNameView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignTop="@+id/driver_photo_view"
+                        android:layout_marginEnd="9dp"
+                        android:layout_marginLeft="11dp"
+                        android:layout_marginRight="9dp"
+                        android:layout_marginStart="11dp"
+                        android:layout_toEndOf="@+id/driver_photo_view"
+                        android:layout_toLeftOf="@+id/callDriverButton"
+                        android:layout_toRightOf="@+id/driver_photo_view"
+                        android:layout_toStartOf="@+id/callDriverButton"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/charcoal_grey"
+                        android:textSize="15sp"
+                        tools:text="Andrew Campbell" />
+
+                    <TextView
+                        android:id="@+id/driverPlateVehicle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignEnd="@+id/driverNameView"
+                        android:layout_alignLeft="@+id/driverNameView"
+                        android:layout_alignRight="@+id/driverNameView"
+                        android:layout_alignStart="@+id/driverNameView"
+                        android:layout_below="@+id/driverNameView"
+                        android:fontFamily="sans-serif-light"
+                        android:textColor="@color/charcoal_grey"
+                        android:textSize="12sp"
+                        android:textStyle="normal"
+                        tools:text="51-234-567, Mazda 3" />
+
+                </RelativeLayout>
+
+
+            </LinearLayout>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/ride_records_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/ride_details_linear"
+                android:layout_marginBottom="@dimen/layout_vertical_standard_value"
+                android:layout_marginEnd="@dimen/layout_vertical_standard_value"
+                android:layout_marginLeft="@dimen/layout_vertical_standard_value"
+                android:layout_marginRight="@dimen/layout_vertical_standard_value"
+                android:layout_marginStart="@dimen/layout_vertical_standard_value"
+                android:layout_marginTop="@dimen/layout_vertical_standard_value" />
+        </RelativeLayout>
+    </ScrollView>
+    <android.support.v7.widget.AppCompatButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/rose"
+        android:textColor="@color/white"
+        android:id="@+id/ride_status_cancel_ride_btn"
+        android:text="@string/cancel_ride" />
+</LinearLayout>

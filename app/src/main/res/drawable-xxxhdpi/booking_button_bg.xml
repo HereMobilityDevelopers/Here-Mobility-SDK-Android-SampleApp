@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+  <!-- State.BOOKING -->
+  <item android:drawable="@drawable/white_bg" android:state_activated="true" android:state_enabled="false" />
+  <!-- State.DISABLED -->
+  <item android:drawable="@drawable/light_teal_round_rect_3" android:state_activated="false" android:state_enabled="false" />
+  <!-- State.ENABLED -->
+  <item android:drawable="@drawable/aqua_marine_round_rect_3" />
+</selector>

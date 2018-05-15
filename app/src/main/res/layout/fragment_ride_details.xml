@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/ride_details_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        />
+
+    <ScrollView
+        android:id="@+id/ride_details_scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/ride_details_action_button"
+        android:layout_below="@id/ride_details_toolbar">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="@dimen/GetRideContentPaddingHorizontal"
+            android:paddingRight="@dimen/GetRideContentPaddingHorizontal">
+
+            <TextView
+                style="@style/TitleTitle3LeftGray"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/your_details" />
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/nameTextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/nameEditText"
+                    style="@style/PlainTextMediumLeft"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:drawableLeft="@drawable/name_small"
+                    android:drawablePadding="8dp"
+                    android:drawableStart="@drawable/name_small"
+                    android:hint="@string/ride_details_hint_name"
+                    android:imeOptions="actionNext"
+                    android:inputType="textPersonName|textCapWords"
+                    android:maxLines="1"
+                    android:nextFocusForward="@id/phoneEditText"
+                    android:paddingLeft="@dimen/RideDetailsInnerMargin"
+                    android:paddingRight="@dimen/RideDetailsInnerMargin" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/phoneTextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/phoneEditText"
+                    style="@style/PlainTextMediumLeft"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:drawableLeft="@drawable/phone_small"
+                    android:drawablePadding="8dp"
+                    android:drawableStart="@drawable/phone_small"
+                    android:hint="@string/ride_details_hint_phone"
+                    android:imeOptions="actionNext"
+                    android:inputType="phone"
+                    android:maxLines="1"
+                    android:nextFocusForward="@id/notesEditText"
+                    android:paddingLeft="@dimen/RideDetailsInnerMargin"
+                    android:paddingRight="@dimen/RideDetailsInnerMargin" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/notesTextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/notesEditText"
+                    style="@style/PlainTextMediumLeft"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:drawableLeft="@drawable/notes"
+                    android:drawablePadding="8dp"
+                    android:drawableStart="@drawable/notes"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:hint="@string/note_for_driver"
+                    android:imeOptions="actionDone"
+                    android:inputType="text|textAutoComplete|textMultiLine"
+                    android:paddingLeft="@dimen/RideDetailsInnerMargin"
+                    android:paddingRight="@dimen/RideDetailsInnerMargin" />
+            </android.support.design.widget.TextInputLayout>
+
+            <TextView
+                style="@style/TitleTitle3LeftGray"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ride_details" />
+
+            <!--Passengers-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="30dp"
+                android:divider="?android:dividerHorizontal"
+                android:gravity="center_vertical"
+                android:orientation="vertical"
+                android:showDividers="beginning|end|middle">
+
+                <!--Passengers-->
+                <LinearLayout style="@style/GetRideVerticalDividersLayout">
+
+                    <ImageView
+                        style="@style/GetRideSmallIcon"
+                        android:src="@drawable/people" />
+
+                    <TextView
+                        style="@style/PlainTextMediumLeft"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/passengers" />
+
+                    <com.here.mobility.sdk.sampleapp.widget.CounterView
+                        android:id="@+id/ride_details_passenger_counter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/RideDetailsInnerMargin"
+                        android:layout_marginRight="@dimen/RideDetailsInnerMargin"
+                        app:initial_value="1"
+                        app:max_value="8"
+                        app:min_value="1" />
+
+
+                </LinearLayout>
+
+                <!--Suitcases-->
+                <LinearLayout
+                    android:id="@+id/suitcasesLayout"
+                    style="@style/GetRideVerticalDividersLayout">
+
+                    <ImageView
+                        style="@style/GetRideSmallIcon"
+                        android:src="@drawable/suitcase" />
+
+                    <TextView
+                        style="@style/PlainTextMediumLeft"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/suitcases" />
+
+                    <com.here.mobility.sdk.sampleapp.widget.CounterView
+                        android:id="@+id/ride_details_suitcase_counter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/RideDetailsInnerMargin"
+                        android:layout_marginRight="@dimen/RideDetailsInnerMargin"
+                        app:initial_value="0"
+                        app:max_value="4"
+                        app:min_value="0" />
+
+
+                </LinearLayout>
+
+                <!--Booking-->
+                <LinearLayout
+                    android:id="@+id/book_now_layout"
+                    style="@style/GetRideVerticalDividersLayout">
+
+                    <ImageView
+                        style="@style/GetRideSmallIcon"
+                        android:src="@drawable/ic_alarm_black_24dp" />
+
+                    <TextView
+                        android:id="@+id/ride_details_leave_time"
+                        style="@style/PlainTextMediumLeft"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/leave_now" />
+
+                    <ImageView
+                        android:id="@+id/imageView"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_weight="1"
+                        android:scaleType="fitStart"
+                        android:src="@drawable/ic_arrow_drop_down_black_24dp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/btnMore"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="18dp"
+                android:layout_marginTop="18dp"
+                android:fontFamily="sans-serif"
+                android:gravity="center_horizontal"
+                android:letterSpacing="-0.01"
+                android:text="@string/more"
+                android:textColor="@color/aqua_marine"
+                android:textSize="15sp"
+                android:textStyle="normal"
+                android:visibility="gone"
+                tools:targetApi="lollipop" />
+        </LinearLayout>
+
+    </ScrollView>
+
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/ride_details_action_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+
+        android:background="@color/aqua_marine"
+        android:text="@string/show_offers"
+        android:textColor="@color/white" />
+
+</RelativeLayout>
