@@ -26,7 +26,7 @@
         <activity android:name=".public_transport.PublicTransportActivity" />
 
         <meta-data
-            android:name="com.here.mobility.sdk.APP_KEY"
+            android:name="com.here.mobility.sdk.API_KEY"
             android:value="@string/here_sdk_app_id" />
 
         <meta-data
