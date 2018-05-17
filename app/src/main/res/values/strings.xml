@@ -2,8 +2,8 @@
     <string name="app_name">sampleApp</string>
 
 
-    <string name="here_sdk_app_id">{YOUR_SDK_APP_ID}</string>
-    <string name="here_sdk_app_secret">{YOUR_SDK_APP_SECRET}</string>
+    <!--<string name="here_sdk_app_id">{YOUR_SDK_APP_ID}</string>-->
+    <!--<string name="here_sdk_app_secret">{YOUR_SDK_APP_SECRET}</string>-->
 
     <string name="from_where">From where?</string>
     <string name="where_to">Where to?</string>

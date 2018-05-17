@@ -4,6 +4,7 @@ This repository contains the Sample application showing the use of the HERE Mobi
 To build and run the sample app:
 - Clone this repository.
 - Follow the instruction in the [Readme of the SDK](https://github.com/HereMobilityDevelopers/HERE-Mobility-SDK-Android) in order to get App Key and App Secret.
-- Replace the values in the `AndroidManifest.xml`.
+- Uncomment the `here_sdk_app_id` and `here_sdk_app_secret` values in `strings.xml` and replace the values with your credentials
 - Open it in Android Studio and run the app.
+
 
