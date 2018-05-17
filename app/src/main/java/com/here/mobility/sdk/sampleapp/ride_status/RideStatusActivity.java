@@ -6,7 +6,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.Looper;
 import android.support.annotation.AnyThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -17,12 +16,10 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.here.mobility.sdk.core.HereMobilitySdk;
 import com.here.mobility.sdk.demand.DemandClient;
 import com.here.mobility.sdk.demand.DriverDetails;
 import com.here.mobility.sdk.demand.PriceEstimate;
@@ -122,9 +119,16 @@ public class RideStatusActivity extends AppCompatActivity {
         //Initialize DemandClient.
         demandClient = DemandClient.newInstance(this);
         initUI();
-        registerRideStatusUpdates();
         setRideInfo(ride);
 
+    }
+
+
+    @Override
+    protected void onStart() {
+
+        super.onStart();
+        registerRideStatusUpdates();
     }
 
 
@@ -329,10 +333,21 @@ public class RideStatusActivity extends AppCompatActivity {
 
 
     @Override
+    protected void onStop() {
+
+        super.onStop();
+
+        //unregister demand client.
+        demandClient.unregisterFromRideUpdates(listener);
+    }
+
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
 
-        demandClient.shutdown();
+        //It's important to call shutdownNow function when the client is no longer needed.
+        demandClient.shutdownNow();
 
         if (handlerThread != null) {
             handlerThread.quit();

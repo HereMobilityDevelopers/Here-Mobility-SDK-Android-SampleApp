@@ -158,7 +158,7 @@ public class RideOffersActivity extends AppCompatActivity implements RideOffersA
 
         //It's important to call shutdown function when the client is no longer needed.
         if (demandClient != null) {
-            demandClient.shutdown();
+            demandClient.shutdownNow();
         }
     }
 

@@ -28,8 +28,9 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/show_rides_button"
         android:layout_margin="@dimen/layout_vertical_standard_value"
+        android:padding="2dp"
         android:background="@color/charcoal_grey_50"
-        android:text="@string/show_future_rides"
+        android:text="@string/show_active_rides"
         android:textColor="@color/white"
         android:visibility="gone" />
 

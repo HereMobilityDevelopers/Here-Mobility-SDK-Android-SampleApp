@@ -7,8 +7,6 @@
     <dimen name="GetRideContentPaddingHorizontal">25dp</dimen>
     <dimen name="RideDetailsInnerMargin">10dp</dimen>
     <dimen name="GetRideRideConstraintItemHeight">60dp</dimen>
-    <dimen name="kswThumbSize">33dp</dimen>
-    <dimen name="GetRideRideButtonHeight">44dp</dimen>
     <dimen name="autosizeTextMinTextSize">16sp</dimen>
 
 

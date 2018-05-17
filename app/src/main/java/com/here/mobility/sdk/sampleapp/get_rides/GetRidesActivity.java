@@ -1,10 +1,13 @@
 package com.here.mobility.sdk.sampleapp.get_rides;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -12,7 +15,10 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationRequest;
 import com.google.common.collect.Lists;
+import com.here.mobility.sdk.common.util.PermissionUtils;
 import com.here.mobility.sdk.core.net.ResponseException;
 import com.here.mobility.sdk.core.net.ResponseFuture;
 import com.here.mobility.sdk.core.net.ResponseListener;
@@ -28,6 +34,7 @@ import com.here.mobility.sdk.demand.RideQueryResponse;
 import com.here.mobility.sdk.demand.RideStatusLog;
 import com.here.mobility.sdk.demand.RideWaypoints;
 import com.here.mobility.sdk.demand.TaxiRideOffer;
+import com.here.mobility.sdk.map.FusedUserLocationSource;
 import com.here.mobility.sdk.map.MapController;
 import com.here.mobility.sdk.map.MapFragment;
 import com.here.mobility.sdk.map.MapView;
@@ -79,6 +86,12 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
      */
     @NonNull
     private static final String RIDE_DETAILS_FRAGMENT = "RIDE_DETAILS_FRAGMENT";
+
+
+    /**
+     * Location permission code.
+     */
+    private static final int LOCATION_PERMISSIONS_CODE = 42;
 
 
     /**
@@ -161,8 +174,8 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
     protected void onStart() {
         super.onStart();
 
-        //Get Future rides. request for all future rides.
-        getFutureRides();
+        //Get Active rides.
+        getActiveRides();
     }
 
 
@@ -196,6 +209,12 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
         mapController.setPosition(Constant.CENTER_OF_LONDON);
         //Set map zoom.
         mapController.setZoom(MAP_ZOOM);
+
+        if (!PermissionUtils.hasAnyLocationPermissions(this)) {
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSIONS_CODE);
+        }else{
+            startLocationUpdates();
+        }
     }
 
 
@@ -344,7 +363,7 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
                 .setConstraints(constraints)
                 .setRideWaypoints(rideWaypoints);
 
-        //set pre-book time, default if now.
+        //set pre-book time, default is now.
         if (preBookTime != null) {
             rideOfferBuilder.setPrebookPickupTime(preBookTime);
         }
@@ -421,7 +440,7 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
     /**
      * Request ride attach to user.
      */
-    private void getFutureRides() {
+    private void getActiveRides() {
 
         //Build a ride query.
         RideQuery rideQuery =  RideQuery.builder()
@@ -480,9 +499,30 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
     protected void onDestroy() {
         super.onDestroy();
 
-        //It's important to call shutdown function when the client is no longer needed.
+        //It's important to call shutdownNow function when the client is no longer needed.
         if (demandClient != null) {
-            demandClient.shutdown();
+            demandClient.shutdownNow();
         }
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
+        if (requestCode == LOCATION_PERMISSIONS_CODE){
+            if ((grantResults.length > 0) && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    startLocationUpdates();
+            }
+        }
+    }
+
+
+    /**
+     * Start user location updates.
+     */
+    @SuppressLint("MissingPermission")
+    private void startLocationUpdates(){
+
+        mapController.getUserLocationMarkerManager().setLocationSource(new FusedUserLocationSource(this));
+
     }
 }

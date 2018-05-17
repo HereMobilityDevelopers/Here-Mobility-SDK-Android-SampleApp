@@ -27,13 +27,7 @@
         <item name="android:maxLines">1</item>
         <item name="android:inputType">textPostalAddress</item>
     </style>
-    <style name="PlainTextSmallGreen">
-        <item name="android:textSize">12sp</item>
-        <item name="android:fontFamily">sans-serif-light</item>
-        <item name="android:textStyle">normal</item>
-        <item name="android:textColor">@color/aqua_marine_text_color</item>
-        <item name="android:clickable">true</item>
-    </style>
+
     <style name="PlainTextMediumLeft">
         <item name="android:textSize">15sp</item>
         <item name="android:fontFamily">sans-serif-light</item>

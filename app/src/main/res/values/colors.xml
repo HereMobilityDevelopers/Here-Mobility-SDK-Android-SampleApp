@@ -4,8 +4,6 @@
     <color name="colorPrimaryDark">#06b87c</color>
     <color name="colorAccent">#f5f5f5</color>
 
-    <color name="green_blue">#06b87c</color>
-    <color name="white_smoke">#f9f5f5f5</color>
     <color name="charcoal_grey">#383c45</color>
     <color name="light_teal">#a3ece7</color>
     <color name="charcoal_grey_50">#80383c45</color>
@@ -13,9 +11,7 @@
     <color name="aqua_marine">#48dad0</color>
     <color name="white">#ffffff</color>
     <color name="rose">#d35566</color>
-    <color name="light_rose">#cfa0a6</color>
     <color name="divider">#ebebeb</color>
-    <color name="focused_edittext">#33a3ece7</color>
     <color name="separator_gray">#d7d7d7</color>
 
 </resources>

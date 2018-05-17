@@ -1,10 +1,13 @@
 package com.here.mobility.sdk.sampleapp.geocoding;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -16,7 +19,10 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.here.mobility.sdk.common.util.Cancelable;
+import com.here.mobility.sdk.common.util.PermissionUtils;
 import com.here.mobility.sdk.core.geo.LatLng;
 import com.here.mobility.sdk.core.net.ResponseException;
 import com.here.mobility.sdk.core.net.ResponseFuture;
@@ -34,10 +40,17 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+
 /**********************************************************
  * Copyright © 2018 HERE Global B.V. All rights reserved. *
  **********************************************************/
 public class AutoCompleteActivity extends AppCompatActivity {
+
+
+    /**
+     * Location permission code.
+     */
+    private static final int LOCATION_PERMISSIONS_CODE = 41;
 
 
     /**
@@ -72,19 +85,34 @@ public class AutoCompleteActivity extends AppCompatActivity {
     private AutocompleteAdapter adapter;
 
 
+    private FusedLocationProviderClient fusedLocationClient;
+
+
+    /**
+     * User last known location.
+     */
+    @Nullable
+    private Location lastKnownLocation;
+
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_geocoding);
         autocompleteClient = new GeocodingClient(this);
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
         updateUI();
+        updateLastKnownLocation();
     }
 
 
     /**
      * Update Ui.
      */
-    private void updateUI(){
+    private void updateUI() {
+
         EditText searchAddressEdit = findViewById(R.id.search_address_edit_text);
         searchAddressEdit.addTextChangedListener(new TextWatcher() {
             @Override
@@ -92,10 +120,13 @@ public class AutoCompleteActivity extends AppCompatActivity {
 
             }
 
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+
                 onSearchAddressTextChanged(s.toString());
             }
+
 
             @Override
             public void afterTextChanged(Editable s) {
@@ -124,15 +155,17 @@ public class AutoCompleteActivity extends AppCompatActivity {
         }
     }
 
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        if (item.getItemId() == android.R.id.home){
+        if (item.getItemId() == android.R.id.home) {
             setResult(RESULT_CANCELED);
             finish();
         }
         return super.onOptionsItemSelected(item);
     }
+
 
     /**
      * Callback method called when an address item did click.
@@ -151,18 +184,19 @@ public class AutoCompleteActivity extends AppCompatActivity {
      * Send geocoding request just when text length more than one char.
      * @param text the query for forward geocoding
      */
-    private void onSearchAddressTextChanged(@NonNull String text){
+    private void onSearchAddressTextChanged(@NonNull String text) {
 
         //Cancel recent geocoding request.
-        if (autocompleteResponseFuture != null){
+        if (autocompleteResponseFuture != null) {
             autocompleteResponseFuture.cancel();
             autocompleteResponseFuture = null;
         }
 
         int GEOCODING_REQUEST_MIN_CHAR = 2;
-        if (text.length() >= GEOCODING_REQUEST_MIN_CHAR){
+        if (text.length() >= GEOCODING_REQUEST_MIN_CHAR) {
+            updateLastKnownLocation();
             geocodingRequest(text);
-        }else{
+        } else {
 
             //clean autocomplete list.
             adapter.setDataSource(Collections.emptyList());
@@ -175,10 +209,16 @@ public class AutoCompleteActivity extends AppCompatActivity {
      * Forward geocoding by given a textual query.
      * @param query the query for forward geocoding.
      */
-    private void geocodingRequest(@NonNull String query){
+    private void geocodingRequest(@NonNull String query) {
 
         //User current location.
-        LatLng location = Constant.CENTER_OF_LONDON;
+        LatLng location;
+        if (lastKnownLocation != null) {
+            location = LatLng.fromLocation(lastKnownLocation);
+        }else{
+            location = Constant.CENTER_OF_LONDON;
+        }
+
         String languageCode = Locale.getDefault().getISO3Language();
 
         //The result type can be - ADDRESS:     and or PLACE:
@@ -189,7 +229,7 @@ public class AutoCompleteActivity extends AppCompatActivity {
                 query,
                 location, //The location around which to search for results.
                 //put here countryCode if you want suggestions only from a specific country.
-                null , //ISO 3166 alpha 3 country to code used filter results.
+                null, //ISO 3166 alpha 3 country to code used filter results.
                 languageCode, //ISO 639-1 language code for the preferred language of the results
                 resultTypes); // The result types to obtain.
 
@@ -207,28 +247,33 @@ public class AutoCompleteActivity extends AppCompatActivity {
 
     /**
      * Geocoding response listener.
-     */    @NonNull
-    private ResponseListener<GeocodingResponse> geocodingResponseResponseListener  = new ResponseListener<GeocodingResponse>(){
+     */
+    @NonNull
+    private ResponseListener<GeocodingResponse> geocodingResponseResponseListener = new ResponseListener<GeocodingResponse>() {
         @Override
-        public void onResponse(@NonNull GeocodingResponse geocodingResponse){
+        public void onResponse(@NonNull GeocodingResponse geocodingResponse) {
+
             List<GeocodingResult> results = geocodingResponse.getResults();
             adapter.setDataSource(results);
             adapter.notifyDataSetChanged();
         }
 
+
         @Override
-        public void onError(@NonNull ResponseException exception){
+        public void onError(@NonNull ResponseException exception) {
+
             Toast.makeText(AutoCompleteActivity.this, exception.getMessage(), Toast.LENGTH_LONG).show();
         }
     };
 
 
     @Override
-    protected void onDestroy(){
+    protected void onDestroy() {
+
         super.onDestroy();
 
         //It's important to call shutdown function when the client is no longer needed.
-        if (autocompleteClient != null){
+        if (autocompleteClient != null) {
             autocompleteClient.shutdownNow();
         }
     }
@@ -241,10 +286,11 @@ public class AutoCompleteActivity extends AppCompatActivity {
      * @return an intent to {@link AutoCompleteActivity} with inject {@link GeocodingResult} as extra.
      */
     @NonNull
-    public static Intent createIntent(@NonNull Context context, @Nullable GeocodingResult address){
+    public static Intent createIntent(@NonNull Context context, @Nullable GeocodingResult address) {
+
         Intent intent = new Intent(context, AutoCompleteActivity.class);
         if (address != null) {
-            intent.putExtra(EXTRA_GEOCODING_RESULT_KEY,address);
+            intent.putExtra(EXTRA_GEOCODING_RESULT_KEY, address);
         }
         return intent;
     }
@@ -255,11 +301,29 @@ public class AutoCompleteActivity extends AppCompatActivity {
      * @return {@link GeocodingResult} if exist.
      */
     @Nullable
-    public GeocodingResult getExtraGeocodingResult(){
+    public GeocodingResult getExtraGeocodingResult() {
+
         GeocodingResult extra = null;
-        if (getIntent().hasExtra(EXTRA_GEOCODING_RESULT_KEY)){
+        if (getIntent().hasExtra(EXTRA_GEOCODING_RESULT_KEY)) {
             extra = getIntent().getParcelableExtra(EXTRA_GEOCODING_RESULT_KEY);
         }
         return extra;
+    }
+
+
+    @SuppressLint("MissingPermission")
+    private void updateLastKnownLocation() {
+
+        if (!PermissionUtils.hasAnyLocationPermissions(this)) {
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSIONS_CODE);
+        }else{
+            fusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(this, location -> {
+                        // Got last known location. In some rare situations this can be null.
+                        if (location != null) {
+                            lastKnownLocation = location;
+                        }
+                    });
+        }
     }
 }
