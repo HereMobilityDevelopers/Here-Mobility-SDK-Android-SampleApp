@@ -1,10 +1,6 @@
 <resources>
     <string name="app_name">sampleApp</string>
 
-
-    <!--<string name="here_sdk_app_id">{YOUR_SDK_APP_ID}</string>-->
-    <!--<string name="here_sdk_app_secret">{YOUR_SDK_APP_SECRET}</string>-->
-
     <string name="from_where">From where?</string>
     <string name="where_to">Where to?</string>
     <string name="show_offers">Show Rides</string>
@@ -42,6 +38,9 @@
     <string name="active_rides">Active Rides</string>
     <string name="error_no_ride_options_results">No results found. Please try to search a ride again.</string>
     <string name="next">Next</string>
+    <string name="register">Register</string>
+    <string name="register_not_valid_user_name">User name is mandatory for registration</string>
+    <string name="enter_user_name">Enter user name</string>
 
 
 </resources>

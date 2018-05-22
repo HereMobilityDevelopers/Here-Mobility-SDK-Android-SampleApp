@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+    <!--
+    TODO: Replace app_id and app_secret values.
+
+    Follow the instruction in the Readme of the SDK in order to get App Key and App Secret.
+    (https://github.com/HereMobilityDevelopers/HERE-Mobility-SDK-Android#obtaining-here-credentials-for-your-app-)
+
+    Once you have your keys replace strings values in this file.
+    -->
+
+    <string name="here_sdk_app_id">{YOUR_SDK_APP_ID}</string>
+    <string name="here_sdk_app_secret">{YOUR_SDK_APP_SECRET}</string>
+
+</resources>

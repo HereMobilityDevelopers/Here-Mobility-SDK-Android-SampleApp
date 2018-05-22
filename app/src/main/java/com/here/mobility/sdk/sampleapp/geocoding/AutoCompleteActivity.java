@@ -62,7 +62,7 @@ public class AutoCompleteActivity extends AppCompatActivity {
     /**
      * Geocoding Result Intent.extra. use to pass {@link GeocodingResult} as parameter to this activity.
      */
-    private static final String EXTRA_GEOCODING_RESULT_KEY = "EXTRA_GEOCODING_RESULT";
+    private static final String EXTRA_GEOCODING_QUERY_KEY = "EXTRA_GEOCODING_QUERY";
 
 
     /**
@@ -134,13 +134,6 @@ public class AutoCompleteActivity extends AppCompatActivity {
             }
         });
 
-        //inject address, provide support to start AutocompleteActivity with GeocodingResult as parameter.
-        //The best practice to start AutocompleteActivity with GeocodingResult is calling to createIntent with GeocodingResult.
-        //This address can be the last address the user selected, and we re-initiate server call here to get more options.
-        GeocodingResult injectAddress = getExtraGeocodingResult();
-        if (injectAddress != null) {
-            searchAddressEdit.setText(injectAddress.getAddressText());
-        }
         RecyclerView autoCompleteRecyclerView = findViewById(R.id.auto_complete_recycler_view);
         adapter = new AutocompleteAdapter(adapterListener);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
@@ -152,6 +145,14 @@ public class AutoCompleteActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setTitle(R.string.autocomplete_title);
             actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
+        //inject address, provide support to start AutocompleteActivity with Geocoding query as parameter.
+        //The best practice to start AutocompleteActivity with Geocoding query is calling to createIntent with String query.
+        //This query can be the last address the user selected, and we re-initiate server call here to get more options.
+        String injectQuery = getExtraGeocodingQuery();
+        if (injectQuery != null) {
+            searchAddressEdit.setText(injectQuery);
         }
     }
 
@@ -199,8 +200,10 @@ public class AutoCompleteActivity extends AppCompatActivity {
         } else {
 
             //clean autocomplete list.
-            adapter.setDataSource(Collections.emptyList());
-            adapter.notifyDataSetChanged();
+            if (adapter != null) {
+                adapter.setDataSource(Collections.emptyList());
+                adapter.notifyDataSetChanged();
+            }
         }
     }
 
@@ -282,30 +285,30 @@ public class AutoCompleteActivity extends AppCompatActivity {
     /**
      * A Helper method, Use to create intent with address injection to start this activity with address.
      * @param context The context of the activity sender.
-     * @param address {@link GeocodingResult} an address to inject to autocomplete edit text.
-     * @return an intent to {@link AutoCompleteActivity} with inject {@link GeocodingResult} as extra.
+     * @param query an address or place name to inject to autocomplete edit text.
+     * @return an intent to {@link AutoCompleteActivity} with inject query as extra.
      */
     @NonNull
-    public static Intent createIntent(@NonNull Context context, @Nullable GeocodingResult address) {
+    public static Intent createIntent(@NonNull Context context, @Nullable String query) {
 
         Intent intent = new Intent(context, AutoCompleteActivity.class);
-        if (address != null) {
-            intent.putExtra(EXTRA_GEOCODING_RESULT_KEY, address);
+        if (query != null) {
+            intent.putExtra(EXTRA_GEOCODING_QUERY_KEY, query);
         }
         return intent;
     }
 
 
     /**
-     * Get extra {@link GeocodingResult} if exist.
-     * @return {@link GeocodingResult} if exist.
+     * Get inject geocoding query if exist.
+     * @return geocoding query if exist.
      */
     @Nullable
-    public GeocodingResult getExtraGeocodingResult() {
+    public String getExtraGeocodingQuery() {
 
-        GeocodingResult extra = null;
-        if (getIntent().hasExtra(EXTRA_GEOCODING_RESULT_KEY)) {
-            extra = getIntent().getParcelableExtra(EXTRA_GEOCODING_RESULT_KEY);
+        String extra = null;
+        if (getIntent().hasExtra(EXTRA_GEOCODING_QUERY_KEY)) {
+            extra = getIntent().getStringExtra(EXTRA_GEOCODING_QUERY_KEY);
         }
         return extra;
     }

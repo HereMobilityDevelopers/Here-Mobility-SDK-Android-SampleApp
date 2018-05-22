@@ -3,22 +3,27 @@ package com.here.mobility.sdk.sampleapp.get_rides;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationRequest;
 import com.google.common.collect.Lists;
 import com.here.mobility.sdk.common.util.PermissionUtils;
+import com.here.mobility.sdk.core.auth.UserAuthenticationException;
+import com.here.mobility.sdk.core.geo.LatLng;
 import com.here.mobility.sdk.core.net.ResponseException;
 import com.here.mobility.sdk.core.net.ResponseFuture;
 import com.here.mobility.sdk.core.net.ResponseListener;
@@ -38,6 +43,7 @@ import com.here.mobility.sdk.map.FusedUserLocationSource;
 import com.here.mobility.sdk.map.MapController;
 import com.here.mobility.sdk.map.MapFragment;
 import com.here.mobility.sdk.map.MapView;
+import com.here.mobility.sdk.map.Marker;
 import com.here.mobility.sdk.map.PolylineOverlay;
 import com.here.mobility.sdk.map.geocoding.GeocodingResult;
 import com.here.mobility.sdk.map.route.Route;
@@ -46,8 +52,10 @@ import com.here.mobility.sdk.map.route.RouteResponse;
 import com.here.mobility.sdk.map.route.RoutingClient;
 import com.here.mobility.sdk.sampleapp.R;
 import com.here.mobility.sdk.sampleapp.geocoding.AutoCompleteActivity;
+import com.here.mobility.sdk.sampleapp.registration.RegistrationDialog;
 import com.here.mobility.sdk.sampleapp.ride_offers.RideOffersActivity;
 import com.here.mobility.sdk.sampleapp.rides.ActiveRidesActivity;
+import com.here.mobility.sdk.sampleapp.util.AuthUtils;
 import com.here.mobility.sdk.sampleapp.util.Constant;
 
 import java.util.ArrayList;
@@ -128,6 +136,20 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
 
 
     /**
+     * The ride pickup.
+     */
+    @Nullable
+    private Marker pickupMarker;
+
+
+    /**
+     * The ride destination.
+     */
+    @Nullable
+    private Marker destinationMarker;
+
+
+    /**
      * Save an id which the polyline can later be removed.
      */
     private long routePolylineId = 0;
@@ -184,10 +206,13 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
      */
     private void updateUI(){
         findViewById(R.id.destAddressView).setOnClickListener(view -> {
-            startActivityForResult(AutoCompleteActivity.createIntent(GetRidesActivity.this,destination),DESTINATION_GEOCODING_REQUEST);
+            String query = ((EditText)view).getText().toString();
+            startActivityForResult(AutoCompleteActivity.createIntent(GetRidesActivity.this,query),DESTINATION_GEOCODING_REQUEST);
+
         });
         findViewById(R.id.pickupAddressView).setOnClickListener(view -> {
-            startActivityForResult(AutoCompleteActivity.createIntent(GetRidesActivity.this,pickup),PICKUP_GEOCODING_REQUEST);
+            String query = ((EditText)view).getText().toString();
+            startActivityForResult(AutoCompleteActivity.createIntent(GetRidesActivity.this,query),PICKUP_GEOCODING_REQUEST);
         });
         findViewById(R.id.show_rides_button).setOnClickListener(this::onShowRidesButtonClicked);
         findViewById(R.id.show_future_rides_button).setOnClickListener(v -> {
@@ -234,6 +259,8 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
                 this.pickup = pickup;
                 mapController.setPosition(pickup.getLocation());
 
+                //add pickup marker
+                showPickupMarkerAt(pickup.getLocation());
                 String address = String.format(Locale.getDefault(),
                         "%s, %s",pickup.getTitle(),pickup.getAddressText());
                 ((TextView)findViewById(R.id.pickupAddressView))
@@ -243,6 +270,8 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
                 GeocodingResult destination = data.getParcelableExtra(AutoCompleteActivity.GEOCODING_RESULT);
                 this.destination = destination;
 
+                //add destination marker
+                showDestinationMarkerAt(destination.getLocation());
                 String address = String.format(Locale.getDefault(),
                         "%s, %s",destination.getTitle(),destination.getAddressText());
                 ((TextView)findViewById(R.id.destAddressView))
@@ -267,7 +296,7 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
             }
             //Request route calculation between pickup to destination.
             RouteRequest routeRequest = RouteRequest.create(pickup.getLocation(),
-                                                            destination.getLocation());
+                    destination.getLocation());
 
             //Route Request, register to updates listener.
             routingClient.
@@ -367,7 +396,7 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
         if (preBookTime != null) {
             rideOfferBuilder.setPrebookPickupTime(preBookTime);
         }
-        
+
         //set passenger note
         if (passengerNote != null){
             rideOfferBuilder.setPassengerNote(passengerNote);
@@ -427,7 +456,7 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
                         }
                     });
                 }
-                
+
                 startActivity(RideOffersActivity
                         .createIntent(this, taxiRideOffers, ptRideOffers, passengerDetails));
             }else{
@@ -466,9 +495,36 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
 
         @Override
         public void onError(@NonNull ResponseException e) {
-            Toast.makeText(GetRidesActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+            if(e.getCause().getCause() instanceof UserAuthenticationException){
+                showRegistrationDialog();
+            }else{
+                Toast.makeText(GetRidesActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+            }
         }
     };
+
+
+    /**
+     * Show registration dialog.
+     */
+    private void showRegistrationDialog() {
+        RegistrationDialog dialog = new RegistrationDialog(GetRidesActivity.this);
+        dialog.setPositiveButton(R.string.register, (d, which) -> {
+            String userName = dialog.getUserName();
+            if (!userName.isEmpty()){
+
+                // The user registration should be done with your app's backend (see the documentation for more info).
+                // This is a snippet to generate the token in the app, for testing purposes.
+                AuthUtils.registerUser(userName,
+                        getString(R.string.here_sdk_app_id),
+                        getString(R.string.here_sdk_app_secret));
+                getActiveRides();
+            }else{
+                Toast.makeText(GetRidesActivity.this,R.string.register_not_valid_user_name,Toast.LENGTH_LONG).show();
+            }
+        });
+        dialog.show();
+    }
 
 
     /**
@@ -510,7 +566,7 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
         if (requestCode == LOCATION_PERMISSIONS_CODE){
             if ((grantResults.length > 0) && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                    startLocationUpdates();
+                startLocationUpdates();
             }
         }
     }
@@ -524,5 +580,70 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
 
         mapController.getUserLocationMarkerManager().setLocationSource(new FusedUserLocationSource(this));
 
+    }
+
+
+    /**
+     * Creates a marker at the given location.
+     * @param location the marker location
+     * @param imageRes image res of marker icon.
+     * @return Marker
+     */
+    @NonNull
+    private Marker createMarker(@NonNull LatLng location, @DrawableRes int imageRes){
+
+        //Create map marker.
+        Marker marker = mapController.addMarker();
+        Resources resources = getResources();
+        Drawable drawable = ResourcesCompat.getDrawable(resources, imageRes, null);
+        if (drawable == null){
+            throw new Resources.NotFoundException();
+        }
+
+        //Set marker style.
+        int width = drawable.getIntrinsicWidth();
+        int height = drawable.getIntrinsicHeight();
+        float density = resources.getDisplayMetrics().density;
+        String size = "[" + Math.round(width/density) + "px, " + Math.round(height/density) + "px]";
+        String styleString = "{ style: 'points', color: 'white', size: " + size + ", order: 10000, collide: false, anchor: top }";
+        marker.setStylingFromString(styleString);
+
+        //Set marker icon
+        marker.setDrawable(drawable);
+
+        //Set marker location
+        marker.setPoint(location);
+
+        return marker;
+    }
+
+
+    /**
+     * Show pickup marker at point.
+     * @param point the point.
+     */
+    public void showPickupMarkerAt(@NonNull LatLng point){
+        if (pickupMarker == null){
+            // Create marker lazily.
+            pickupMarker = createMarker(point, R.drawable.ic_location_on_black_24dp);
+        }else{
+            // Otherwise just set marker location.
+            pickupMarker.setPoint(point);
+        }
+    }
+
+
+    /**
+     * Show pickup marker at point.
+     * @param point the point.
+     */
+    public void showDestinationMarkerAt(@NonNull LatLng point){
+        if (destinationMarker == null) {
+            // Create marker lazily.
+            destinationMarker = createMarker(point, R.drawable.ic_pin_drop_black_24dp);
+        }else{
+            // Otherwise just set marker location.
+            destinationMarker.setPoint(point);
+        }
     }
 }

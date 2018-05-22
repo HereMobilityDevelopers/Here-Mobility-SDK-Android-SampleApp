@@ -5,10 +5,13 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.here.mobility.sdk.common.util.AppBugException;
+import com.here.mobility.sdk.core.HereMobilitySdk;
+import com.here.mobility.sdk.core.auth.HereSdkUserAuthInfo;
 
 import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.TimeUnit;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -54,5 +57,33 @@ public class AuthUtils {
             Log.wtf(LOG_TAG, "Failed generating HASH", e);
             throw new AppBugException("Failed generating HASH", e);
         }
+    }
+
+
+    /**
+     * Register user to sdk.
+     * @param userID the user name.
+     */
+    public static void registerUser(@NonNull String userID, @NonNull String appID, @NonNull String appSecret){
+
+        //expiration time in second.
+        long timeExpirationInSeconds = TimeUnit.MILLISECONDS.
+                toSeconds(System.currentTimeMillis()) + TimeUnit.HOURS.toSeconds(Constant.EXPIRATION_HOURS);
+
+        //create hash code.
+        String hash = AuthUtils.hashHmac(
+                appID,
+                userID, //newUserId the user ID
+                (int)timeExpirationInSeconds, //newExpirationSec The expiration of the hash, in seconds since epoch
+                appSecret);
+
+        //create user info.
+        HereSdkUserAuthInfo userInfo = HereSdkUserAuthInfo.create(
+                userID,
+                (int) timeExpirationInSeconds,
+                hash);
+
+        //set the user info.
+        HereMobilitySdk.setUserAuthInfo(userInfo);
     }
 }
