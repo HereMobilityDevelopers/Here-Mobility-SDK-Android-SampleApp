@@ -495,7 +495,12 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
 
         @Override
         public void onError(@NonNull ResponseException e) {
-            if(e.getCause().getCause() instanceof UserAuthenticationException){
+            // If the user authentication token that was provided by HereMobilitySDK.setUserAuthInfo() is expired,
+            // UserAuthenticationException will be returned. To handle this, call HereMobilitySDK.setUserAuthInfo()
+            // again with a valid token, and initiate the SDK API call again.
+            // Note that this exception can be returned from any API call, so this error handling should
+            // be implemented on every onError call.
+            if(e.getRootCause() instanceof UserAuthenticationException){
                 showRegistrationDialog();
             }else{
                 Toast.makeText(GetRidesActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
