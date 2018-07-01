@@ -42,6 +42,7 @@ import com.here.mobility.sdk.demand.TaxiRideOffer;
 import com.here.mobility.sdk.map.FusedUserLocationSource;
 import com.here.mobility.sdk.map.MapController;
 import com.here.mobility.sdk.map.MapFragment;
+import com.here.mobility.sdk.map.MapImageStyle;
 import com.here.mobility.sdk.map.MapView;
 import com.here.mobility.sdk.map.Marker;
 import com.here.mobility.sdk.map.PolylineOverlay;
@@ -290,7 +291,7 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
 
             //lazy initialization for RoutingClient.
             if (routingClient == null) {
-                routingClient = new RoutingClient(this);
+                routingClient = RoutingClient.newInstance(this);
             }else{
                 routingClient.cancelAllActiveRequests();
             }
@@ -597,29 +598,10 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
     @NonNull
     private Marker createMarker(@NonNull LatLng location, @DrawableRes int imageRes){
 
-        //Create map marker.
-        Marker marker = mapController.addMarker();
-        Resources resources = getResources();
-        Drawable drawable = ResourcesCompat.getDrawable(resources, imageRes, null);
-        if (drawable == null){
-            throw new Resources.NotFoundException();
-        }
+        // Styling object of the marker. Can include the image to show, set it's size, etc.
+        MapImageStyle style = MapImageStyle.builder(this, imageRes).build();
 
-        //Set marker style.
-        int width = drawable.getIntrinsicWidth();
-        int height = drawable.getIntrinsicHeight();
-        float density = resources.getDisplayMetrics().density;
-        String size = "[" + Math.round(width/density) + "px, " + Math.round(height/density) + "px]";
-        String styleString = "{ style: 'points', color: 'white', size: " + size + ", order: 10000, collide: false, anchor: top }";
-        marker.setStylingFromString(styleString);
-
-        //Set marker icon
-        marker.setDrawable(drawable);
-
-        //Set marker location
-        marker.setPoint(location);
-
-        return marker;
+        return mapController.addMarker(location, style);
     }
 
 

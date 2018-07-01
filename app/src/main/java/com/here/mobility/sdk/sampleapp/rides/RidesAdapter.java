@@ -93,9 +93,11 @@ public class RidesAdapter extends RecyclerView.Adapter<RidesAdapter.RideItem> {
                             price.getPriceRange().getCurrencyCode()));
         }
 
-        Long etaTimestamp = ride.getRequestedPickupTime();
-        String time = DateUtils.formatDateTime(holder.itemView.getContext(),etaTimestamp , DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_24HOUR);
-        holder.eta.setText(time);
+        Long etaTimestamp = ride.getPrebookPickupTime();
+        if (etaTimestamp != null) {
+            String time = DateUtils.formatDateTime(holder.itemView.getContext(), etaTimestamp, DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_24HOUR);
+            holder.eta.setText(time);
+        }
     }
 
 

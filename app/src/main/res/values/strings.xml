@@ -41,6 +41,8 @@
     <string name="register">Register</string>
     <string name="register_not_valid_user_name">User name is mandatory for registration</string>
     <string name="enter_user_name">Enter user name</string>
+    <string name="ride_cancelled">Ride cancelled</string>
+    <string name="ride_cancel_rejected">Cancellation request rejected by the supplier</string>
 
 
 </resources>

@@ -20,6 +20,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.here.mobility.sdk.core.net.ResponseException;
+import com.here.mobility.sdk.core.net.ResponseListener;
+import com.here.mobility.sdk.demand.CancellationInfo;
+import com.here.mobility.sdk.demand.CancellationPolicy;
 import com.here.mobility.sdk.demand.DemandClient;
 import com.here.mobility.sdk.demand.DriverDetails;
 import com.here.mobility.sdk.demand.PriceEstimate;
@@ -145,7 +149,6 @@ public class RideStatusActivity extends AppCompatActivity {
         rideRecordList.setAdapter(adapter);
         findViewById(R.id.ride_status_cancel_ride_btn).setOnClickListener( v -> {
             cancelRide(this.ride);
-            finish();
         });
 
         supplierName = findViewById(R.id.supplierNameView);
@@ -175,7 +178,29 @@ public class RideStatusActivity extends AppCompatActivity {
 
 
     private void cancelRide(@NonNull Ride ride){
-        demandClient.cancelRide(ride.getRideId(), "user cancel");
+        demandClient.cancelRide(ride.getRideId(), "user cancel").registerListener(
+                new ResponseListener<CancellationInfo>() {
+                    @Override
+                    public void onResponse(@NonNull CancellationInfo cancellationInfo) {
+                        // The cancellation request can be ACCEPTED or REJECTED, need to handle
+                        // both states correctly
+                        if (cancellationInfo.getStatus() == CancellationInfo.Status.ACCEPTED) {
+                            Toast.makeText(getBaseContext(), R.string.ride_cancelled, Toast.LENGTH_SHORT).show();
+                        } else if (cancellationInfo.getStatus() == CancellationInfo.Status.REJECTED) {
+                            Toast.makeText(getBaseContext(), R.string.ride_cancel_rejected, Toast.LENGTH_SHORT).show();
+                        }
+                        finish();
+                    }
+
+
+                    @Override
+                    public void onError(@NonNull ResponseException e) {
+                        // Show error message
+
+                        finish();
+                    }
+                }
+        );
     }
 
 
@@ -283,21 +308,28 @@ public class RideStatusActivity extends AppCompatActivity {
         }
 
         //update ride price
-        //price can be fixed or range of prices.
+        //price can be null, fixed or range of prices.
         PriceEstimate price = ride.getBookingEstimatedPrice();
 
-        //The best practice to show price is by calling toPlainString()
-        if(price.isFixedPrice()){
-            priceTextView.setText(
-                    String.format(Locale.getDefault(),"%s %s"
-                            ,price.getFixedPrice().getAmount().toPlainString()
-                            ,price.getFixedPrice().getCurrencyCode()));
-        }else if (price.isRange()){
-            priceTextView.setText(
-                    String.format(Locale.getDefault(),"%s - %s %s"
-                            ,price.getPriceRange().getLowerBound().toPlainString()
-                            ,price.getPriceRange().getUpperBound().toPlainString()
-                            ,price.getPriceRange().getCurrencyCode()));
+        if (price != null) {
+           //The best practice to show price is by calling toPlainString()
+           if (price.isFixedPrice()) {
+               priceTextView.setText(
+                          String.format(Locale.getDefault(), "%s %s"
+                                    , price.getFixedPrice().getAmount().toPlainString()
+                                    , price.getFixedPrice().getCurrencyCode()));
+           } else if (price.isRange()) {
+               priceTextView.setText(
+                          String.format(Locale.getDefault(), "%s - %s %s"
+                                    , price.getPriceRange().getLowerBound().toPlainString()
+                                    , price.getPriceRange().getUpperBound().toPlainString()
+                                    , price.getPriceRange().getCurrencyCode()));
+               }
+          }
+
+        // If the cancellation policy if not allowed, do not allow the user to ask for cancellation
+        if (ride.getCancellationPolicy() == CancellationPolicy.NOT_ALLOWED) {
+            findViewById(R.id.ride_status_cancel_ride_btn).setEnabled(false);
         }
     }
 

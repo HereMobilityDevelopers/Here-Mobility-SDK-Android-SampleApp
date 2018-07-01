@@ -39,7 +39,7 @@ public class AuthUtils {
 
         try {
             Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
-            Charset ascii = Charset.forName("US-ASCII");
+            Charset ascii = Charset.forName("UTF-8");
             SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(ascii), "HmacSHA256");
             sha256_HMAC.init(secretKey);
             String appKey64 = Base64.encodeToString(appKey.getBytes(ascii), Base64.NO_WRAP);

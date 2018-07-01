@@ -39,6 +39,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
 
 
 /**********************************************************
@@ -100,7 +101,7 @@ public class AutoCompleteActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_geocoding);
-        autocompleteClient = new GeocodingClient(this);
+        autocompleteClient = GeocodingClient.newInstance(this);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         updateUI();
@@ -264,8 +265,11 @@ public class AutoCompleteActivity extends AppCompatActivity {
 
         @Override
         public void onError(@NonNull ResponseException exception) {
-
-            Toast.makeText(AutoCompleteActivity.this, exception.getMessage(), Toast.LENGTH_LONG).show();
+            // Since we are cancelling the the request if there are new requests, do not report
+            // cancellation errors
+            if (!(exception.getRootCause() instanceof CancellationException)) {
+                Toast.makeText(AutoCompleteActivity.this, exception.getMessage(), Toast.LENGTH_LONG).show();
+            }
         }
     };
 
