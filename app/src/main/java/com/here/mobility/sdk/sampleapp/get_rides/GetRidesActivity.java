@@ -3,16 +3,13 @@ package com.here.mobility.sdk.sampleapp.get_rides;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -45,7 +42,8 @@ import com.here.mobility.sdk.map.MapFragment;
 import com.here.mobility.sdk.map.MapImageStyle;
 import com.here.mobility.sdk.map.MapView;
 import com.here.mobility.sdk.map.Marker;
-import com.here.mobility.sdk.map.PolylineOverlay;
+import com.here.mobility.sdk.map.Polyline;
+import com.here.mobility.sdk.map.PolylineStyle;
 import com.here.mobility.sdk.map.geocoding.GeocodingResult;
 import com.here.mobility.sdk.map.route.Route;
 import com.here.mobility.sdk.map.route.RouteRequest;
@@ -151,9 +149,9 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
 
 
     /**
-     * Save an id which the polyline can later be removed.
+     * Save a polyline which the polyline can later be removed.
      */
-    private long routePolylineId = 0;
+    private Polyline routePolyline;
 
 
     /**
@@ -331,10 +329,10 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
      */
     private void drawRoute(@NonNull Route route){
 
-        if (routePolylineId != 0){
-            mapController.removePolyline(routePolylineId);
+        if (routePolyline != null){
+            mapController.removePolyline(routePolyline);
         }
-        routePolylineId = mapController.addPolyline(new PolylineOverlay(route.getGeometry()));
+        routePolyline = mapController.addPolyline(route.getGeometry(), PolylineStyle.builder().build());
 
         //Map center. After adding route polylines to map we need center the map around the route.
         //The best practice to do so is use route bounding box and padding in needed.

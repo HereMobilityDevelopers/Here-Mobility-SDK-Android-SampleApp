@@ -124,8 +124,8 @@ public class RideOffersActivity extends AppCompatActivity implements RideOffersA
         PassengerDetails passengerDetails = getPassengerDetails();
 
         if (passengerDetails != null) {
-            
-            CreateRideRequest rideRequest = CreateRideRequest.create(taxiRideOffer.getOfferId(), passengerDetails);
+
+            CreateRideRequest rideRequest = CreateRideRequest.builder(taxiRideOffer.getOfferId(),passengerDetails).build();
 
             //Request to book a ride.
             ResponseFuture<Ride> rideRequestFuture = demandClient.createRide(rideRequest);
