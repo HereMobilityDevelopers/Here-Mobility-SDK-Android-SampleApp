@@ -44,13 +44,13 @@ public class CounterView extends FrameLayout{
 
 
     /**
-     * Minimum value.
+     * Minimum counter value.
      */
     private int minCounterValue;
 
 
     /**
-     * Maximum value
+     * Maximum counter value
      */
     private int maxCounterValue;
 
@@ -73,7 +73,7 @@ public class CounterView extends FrameLayout{
 
 
     /**
-     * Init CounterView.
+     * Initialize the CounterView.
      */
     private void init(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
 

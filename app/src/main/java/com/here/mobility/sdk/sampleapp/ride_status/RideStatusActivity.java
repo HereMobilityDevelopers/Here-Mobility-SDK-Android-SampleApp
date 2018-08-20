@@ -56,7 +56,7 @@ public class RideStatusActivity extends AppCompatActivity {
 
 
     /**
-     * The shown ride.
+     * The ride to display.
      */
     @NonNull
     private Ride ride;
@@ -70,44 +70,44 @@ public class RideStatusActivity extends AppCompatActivity {
 
 
     /**
-     * HandlerThread provides looper for driver images fetch.
+     * HandlerThread provides looper to fetch driver images.
      */
     HandlerThread handlerThread;
 
 
     /**
-     * Store current shown driver image url.
+     * Store the current driver image URL.
      */
     @Nullable
     private String currentImageURL;
 
 
     /**
-     * TextView that hold the ride ETA.
+     * TextView that holds the ride ETA.
      */
     private TextView etaTextView;
 
 
     /**
-     * TextView that hold the ride supplier name.
+     * TextView that holds the ride supplier name.
      */
     private TextView supplierName;
 
 
     /**
-     * TextView that hold the ride driver name.
+     * TextView that holds the ride driver name.
      */
     private TextView driverName;
 
 
     /**
-     * TextView that hold the ride driver plate vehicle.
+     * TextView that holds the ride driver plate vehicle.
      */
     private TextView driverPlateVehicle;
 
 
     /**
-     * TextView that hold the ride price.
+     * TextView that holds the ride price.
      */
     private TextView priceTextView;
 
@@ -159,8 +159,8 @@ public class RideStatusActivity extends AppCompatActivity {
 
 
     /**
-     * Register for rides updates.
-     * Notify when ride status is updated.
+     * Register for ride updates.
+     * Called when the ride status is updated.
      */
     private void registerRideStatusUpdates() {
 
@@ -242,7 +242,7 @@ public class RideStatusActivity extends AppCompatActivity {
 
     /**
      * Fetch driver image.
-     * @param driver the driver.
+     * @param driver The driver whose image you want to fetch.
      */
     @AnyThread
     private void fetchDriverImage(@NonNull DriverDetails driver) {
@@ -269,7 +269,7 @@ public class RideStatusActivity extends AppCompatActivity {
 
 
     /**
-     * Set ride eta.
+     * Set ride ETA.
      * @param rideLocation ride location.
      */
     @UiThread
@@ -338,7 +338,7 @@ public class RideStatusActivity extends AppCompatActivity {
      * Start {@link RideStatusActivity} to display status updates of the given {@link Ride}
      * @param context the context of the sender.
      * @param ride The ride.
-     * @return An intent with extra params the pass Ride to this activity.
+     * @return An intent with extra parameters the pass Ride to this activity.
      */
     @NonNull
     public static Intent createIntent(@NonNull Context context,@NonNull Ride ride){
@@ -349,9 +349,9 @@ public class RideStatusActivity extends AppCompatActivity {
 
 
     /**
-     * Getter get ride from Intent.extra.
-     * @return ride if exist otherwise null.
-     * @throws RuntimeException for cases that ride not provided.
+     * Gets the ride from Intent.extra.
+     * @return ride if it exists; otherwise returns null.
+     * @throws RuntimeException if the ride was not provided.
      */
     @NonNull
     private Ride getExtraRide(){

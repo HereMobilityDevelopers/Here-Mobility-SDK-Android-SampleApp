@@ -3,7 +3,6 @@ package com.here.mobility.sdk.sampleapp.ride_offers;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
@@ -24,6 +23,7 @@ import com.here.mobility.sdk.demand.PublicTransportRideOffer;
 import com.here.mobility.sdk.demand.Ride;
 import com.here.mobility.sdk.demand.RideOffer;
 import com.here.mobility.sdk.demand.RideOffersRequest;
+import com.here.mobility.sdk.demand.RidePreferences;
 import com.here.mobility.sdk.demand.TaxiRideOffer;
 import com.here.mobility.sdk.sampleapp.R;
 import com.here.mobility.sdk.sampleapp.public_transport.PublicTransportActivity;
@@ -57,7 +57,13 @@ public class RideOffersActivity extends AppCompatActivity implements RideOffersA
 
 
     /**
-     * Use DemandClient to request ride.
+     * Ride preferences list Intent.extra key.
+     */
+    private static final String EXTRA_RIDE_PREFERENCES = "RIDE_PREFERENCES";
+
+
+    /**
+     * Use DemandClient to request a ride.
      */
     private DemandClient demandClient;
 
@@ -74,7 +80,7 @@ public class RideOffersActivity extends AppCompatActivity implements RideOffersA
     /**
      * Update UI
      */
-    private void updateUI(){
+    private void updateUI() {
         RecyclerView rideOffersList = findViewById(R.id.ride_offers_list);
         RideOffersAdapter adapter = new RideOffersAdapter(this);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
@@ -94,8 +100,8 @@ public class RideOffersActivity extends AppCompatActivity implements RideOffersA
 
 
     /**
-     * Called when ride offer did select.
-     * @param offer selected {@link RideOffer}.
+     * Called when a ride offer was selected.
+     * @param The selected {@link RideOffer}.
      */
     @Override
     public void offerItemSelected(@NonNull RideOffer offer) {
@@ -105,6 +111,7 @@ public class RideOffersActivity extends AppCompatActivity implements RideOffersA
                 requestRide(taxiRideOffer);
                 return null;
             }
+
 
             @Override
             public Void visit(@NonNull PublicTransportRideOffer publicTransportRideOffer) {
@@ -116,34 +123,39 @@ public class RideOffersActivity extends AppCompatActivity implements RideOffersA
 
 
     /**
-     * Request to book Ride Offer.
-     * @param taxiRideOffer An offer for ride. should be received from RideOffersRequest.
+     * Request to book a Ride Offer.
+     * @param taxiRideOffer A taxi ride offer, received from RideOffersRequest.
      */
-    private void requestRide(@NonNull TaxiRideOffer taxiRideOffer){
-
+    private void requestRide(@NonNull TaxiRideOffer taxiRideOffer) {
         PassengerDetails passengerDetails = getPassengerDetails();
 
         if (passengerDetails != null) {
+            CreateRideRequest.Builder rideRequestBuilder = CreateRideRequest.builder(taxiRideOffer.getOfferId(), passengerDetails);
 
-            CreateRideRequest rideRequest = CreateRideRequest.builder(taxiRideOffer.getOfferId(),passengerDetails).build();
+            RidePreferences ridePreferences = getRidePreferences();
+            if (ridePreferences != null) {
+                rideRequestBuilder.setRidePreferences(ridePreferences);
+            }
 
             //Request to book a ride.
-            ResponseFuture<Ride> rideRequestFuture = demandClient.createRide(rideRequest);
+            ResponseFuture<Ride> rideRequestFuture = demandClient.createRide(rideRequestBuilder.build());
 
             //Register for ride request updates.
             rideRequestFuture.registerListener(rideFutureListener);
         }
     }
 
+
     /**
-     * Future ride listener. 
+     * Future ride listener.
      */
     private ResponseListener<Ride> rideFutureListener = new ResponseListener<Ride>() {
         @Override
         public void onResponse(Ride ride) {
-            startActivity(RideStatusActivity.createIntent(RideOffersActivity.this,ride));
+            startActivity(RideStatusActivity.createIntent(RideOffersActivity.this, ride));
             finish();
         }
+
 
         @Override
         public void onError(@NonNull ResponseException e) {
@@ -165,20 +177,21 @@ public class RideOffersActivity extends AppCompatActivity implements RideOffersA
 
     /**
      * Getter. Extra list of ride offers
+     *
      * @return list of ride offers
-     * @throws RuntimeException In case RideOffer list is empty or null.
+     * @throws RuntimeException if RideOffer list is empty or null.
      */
     @NonNull
-    private ArrayList<RideOffer> getRideOffers(){
+    private ArrayList<RideOffer> getRideOffers() {
         ArrayList<RideOffer> rideOffers = Lists.newArrayList();
-        if (getIntent().hasExtra(EXTRA_TAXI_RIDE_OFFER_LIST)){
+        if (getIntent().hasExtra(EXTRA_TAXI_RIDE_OFFER_LIST)) {
             rideOffers.addAll(getIntent().getParcelableArrayListExtra(EXTRA_TAXI_RIDE_OFFER_LIST));
         }
-        if (getIntent().hasExtra(EXTRA_PT_RIDE_OFFER_LIST)){
+        if (getIntent().hasExtra(EXTRA_PT_RIDE_OFFER_LIST)) {
             rideOffers.addAll(getIntent().getParcelableArrayListExtra(EXTRA_PT_RIDE_OFFER_LIST));
         }
 
-        if (rideOffers.size() == 0){
+        if (rideOffers.size() == 0) {
             throw new RuntimeException("Ride offer list is mandatory for starting RideOffersActivity");
         }
         return rideOffers;
@@ -186,13 +199,13 @@ public class RideOffersActivity extends AppCompatActivity implements RideOffersA
 
 
     /**
-     * Getter. Extra PassengerDetails.
-     * @return ride PassengerDetails.
+     * Gets PassengerDetails.
+     * @return PassengerDetails
      */
     @Nullable
-    private PassengerDetails getPassengerDetails(){
-        PassengerDetails passengerDetails= null;
-        if (getIntent().hasExtra(EXTRA_PASSENGER_DETAILS)){
+    private PassengerDetails getPassengerDetails() {
+        PassengerDetails passengerDetails = null;
+        if (getIntent().hasExtra(EXTRA_PASSENGER_DETAILS)) {
             passengerDetails = getIntent().getParcelableExtra(EXTRA_PASSENGER_DETAILS);
         }
         return passengerDetails;
@@ -200,23 +213,41 @@ public class RideOffersActivity extends AppCompatActivity implements RideOffersA
 
 
     /**
-     * A Helper method, The main task of this Activity is to request Ride Offers and book selected offer.
-     * PassengerDetails needed to creating ride after ride offer selected.
+     * Getter. Extra RidePreferences.
+     *
+     * @return ridePreferences Optional, RidePreferences.
+     */
+    @Nullable
+    private RidePreferences getRidePreferences() {
+        RidePreferences ridePreferences = null;
+        if (getIntent().hasExtra(EXTRA_RIDE_PREFERENCES)) {
+            ridePreferences = getIntent().getParcelableExtra(EXTRA_RIDE_PREFERENCES);
+        }
+        return ridePreferences;
+    }
+
+
+    /**
+     * A Helper method. The main task of this Activity is to request Ride Offers and book the selected offer.
+     * PassengerDetails are needed to create a ride after an offer is selected.
      * @param context The context of the sender.
-     * @param taxiRideOffers list of TaxiRideOffer object, received from {@link DemandClient#getRideOffers(RideOffersRequest)}
-     * @param ptRideRequest list of PublicTransportRideOffer object, received from {@link DemandClient#getRideOffers(RideOffersRequest)}
+     * @param taxiRideOffers list of TaxiRideOffer objects, received from {@link DemandClient#getRideOffers(RideOffersRequest)}
+     * @param ptRideRequest list of PublicTransportRideOffer objects, received from {@link DemandClient#getRideOffers(RideOffersRequest)}
      * @param passengerDetails PassengerDetails of user.
-     * @return An Intent to RideOffersActivity with safe pass params.
+     * @param ridePreferences  preferences of the ride (e.g. should receive SMS on ride updates)
+     * @return An Intent to RideOffersActivity with safe pass parameters.
      */
     @NonNull
     public static Intent createIntent(Context context,
                                       @NonNull ArrayList<TaxiRideOffer> taxiRideOffers,
                                       @NonNull ArrayList<PublicTransportRideOffer> ptRideRequest,
-                                      @NonNull PassengerDetails passengerDetails){
-        Intent intent = new Intent(context,RideOffersActivity.class);
-        intent.putParcelableArrayListExtra(EXTRA_TAXI_RIDE_OFFER_LIST,taxiRideOffers);
-        intent.putParcelableArrayListExtra(EXTRA_PT_RIDE_OFFER_LIST,ptRideRequest);
-        intent.putExtra(EXTRA_PASSENGER_DETAILS,passengerDetails);
+                                      @NonNull PassengerDetails passengerDetails,
+                                      @Nullable RidePreferences ridePreferences) {
+        Intent intent = new Intent(context, RideOffersActivity.class);
+        intent.putParcelableArrayListExtra(EXTRA_TAXI_RIDE_OFFER_LIST, taxiRideOffers);
+        intent.putParcelableArrayListExtra(EXTRA_PT_RIDE_OFFER_LIST, ptRideRequest);
+        intent.putExtra(EXTRA_PASSENGER_DETAILS, passengerDetails);
+        intent.putExtra(EXTRA_RIDE_PREFERENCES, ridePreferences);
         return intent;
     }
 }

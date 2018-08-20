@@ -16,7 +16,7 @@ public class RegistrationDialog extends AlertDialog.Builder {
 
 
     /**
-     * User name userName
+     * User name
      */
     @NonNull
     private EditText userName;

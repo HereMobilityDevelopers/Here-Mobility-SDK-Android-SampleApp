@@ -20,13 +20,13 @@ import java.util.List;
 public class AutocompleteAdapter extends  RecyclerView.Adapter<AutocompleteAdapter.AddressResultHolderView> {
 
     /**
-     * Autocomplete list item listener.
+     * Auto-complete list item listener.
      */
     public interface AutoCompleteItemClicked {
         /**
-         * Callback method, notify when autocomplete item clicked.
-         * @param position the position of the item.
-         * @param selected {@link GeocodingResult} that selected by the user.
+         * Callback method, notified when an auto-complete item is clicked.
+         * @param position The position of the clicked item.
+         * @param selected The {@link GeocodingResult} selected by the user.
          */
         void onItemClicked(int position,@NonNull GeocodingResult selected);
     }
@@ -85,7 +85,7 @@ public class AutocompleteAdapter extends  RecyclerView.Adapter<AutocompleteAdapt
 
     /**
      * Data source setter
-     * @param dataSource the list of geocoding result data source.
+     * @param dataSource The list of geocoding result data sources.
      */
     public void setDataSource(@NonNull List<GeocodingResult> dataSource) {
         this.dataSource = dataSource;
@@ -96,7 +96,7 @@ public class AutocompleteAdapter extends  RecyclerView.Adapter<AutocompleteAdapt
 
 
         /**
-         * The distance between current position to address position
+         * The distance between the current position to the address position
          */
         @NonNull
         TextView distance;

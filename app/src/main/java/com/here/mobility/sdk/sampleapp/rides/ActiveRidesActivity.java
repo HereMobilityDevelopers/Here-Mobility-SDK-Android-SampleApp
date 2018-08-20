@@ -25,13 +25,13 @@ import java.util.List;
 
 
 /**
- * Display user current active rides.
+ * Display the user's currently active rides.
  */
 public class ActiveRidesActivity extends AppCompatActivity implements RidesAdapter.RidesListener {
 
 
     /**
-     * list of Rides Intent.extra key.
+     * List of Rides Intent.extra key.
      */
     private static final String EXTRA_RIDE_LIST = "RIDE_LIST";
 
@@ -45,7 +45,7 @@ public class ActiveRidesActivity extends AppCompatActivity implements RidesAdapt
 
 
     /**
-     * Update ui
+     * Update UI
      */
     private void updateUI() {
 
@@ -67,7 +67,7 @@ public class ActiveRidesActivity extends AppCompatActivity implements RidesAdapt
 
 
     /**
-     * A callback method, called when ride item clicked.
+     * A callback method, called when a ride item is clicked.
      * @param ride selected {@link Ride}.
      */
     @Override
@@ -78,11 +78,11 @@ public class ActiveRidesActivity extends AppCompatActivity implements RidesAdapt
 
 
     /**
-     * A Helper method, The main task of ActiveRidesActivity is to present list of Ride.
-     * To do so list of Ride must be passed by use this function.
-     * @param context the sender context.
-     * @param rides list of rides.
-     * @return An Intent to ActiveRidesActivity with safe pass params.
+     * A Helper method. The main task of ActiveRidesActivity is to present a list of Rides.
+     * To do so, a list of Rides must be passed to this function.
+     * @param context The sender context.
+     * @param rides The list of rides.
+     * @return An Intent to ActiveRidesActivity with safe pass parameters.
      */
     @NonNull
     public static Intent createIntent(@NonNull Context context, @NonNull List<Ride> rides){
@@ -93,10 +93,10 @@ public class ActiveRidesActivity extends AppCompatActivity implements RidesAdapt
 
 
     /**
-     * Getter, get rides the pass as parameter by using ActiveRidesActivity.createIntent function.
-     * note that list of ride is mandatory to start ActiveRidesActivity.
-     * In case rides not found RuntimeException will be thrown.
-     * @return List of ride.
+     * Gets rides passed as a parameter by using ActiveRidesActivity.createIntent function.
+     * Note that the list of rides is mandatory to start ActiveRidesActivity.
+     * If rides were not found, throws RuntimeException.
+     * @return List of rides.
      */
     @NonNull
     private List<Ride> getRides(){

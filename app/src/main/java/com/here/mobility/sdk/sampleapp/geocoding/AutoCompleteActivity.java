@@ -61,27 +61,27 @@ public class AutoCompleteActivity extends AppCompatActivity {
 
 
     /**
-     * Geocoding Result Intent.extra. use to pass {@link GeocodingResult} as parameter to this activity.
+     * Geocoding Result Intent.extra. Use to pass {@link GeocodingResult} as a parameter to this activity.
      */
     private static final String EXTRA_GEOCODING_QUERY_KEY = "EXTRA_GEOCODING_QUERY";
 
 
     /**
-     *  Geocoding client is the channel for forward and reverse geocoding request.
-     *  note that this client must be shutdown by calling {@link GeocodingClient#shutdown()} after the client is no longer needed.
+     *  Use GeocodingClient for forward (address/place to latitude/longitude) and reverse (latitude/longitude to address/place) geocoding requests.
+     *  Note that this client must be shut down by calling {@link GeocodingClient#shutdown()} after the client is no longer needed.
      */
     private GeocodingClient autocompleteClient;
 
 
     /**
-     * Current geocoding request. Store it so we can cancel it when new request is sent.
+     * Current geocoding request. Store it so we can cancel it when a new request is sent.
      */
     @Nullable
     private Cancelable autocompleteResponseFuture = null;
 
 
     /**
-     * Autocomplete adapter.
+     * Auto-complete adapter.
      */
     private AutocompleteAdapter adapter;
 
@@ -90,7 +90,7 @@ public class AutoCompleteActivity extends AppCompatActivity {
 
 
     /**
-     * User last known location.
+     * User's last known location.
      */
     @Nullable
     private Location lastKnownLocation;
@@ -110,7 +110,7 @@ public class AutoCompleteActivity extends AppCompatActivity {
 
 
     /**
-     * Update Ui.
+     * Update UI.
      */
     private void updateUI() {
 
@@ -170,7 +170,7 @@ public class AutoCompleteActivity extends AppCompatActivity {
 
 
     /**
-     * Callback method called when an address item did click.
+     * Callback method called when an address item was clicked.
      */
     @NonNull
     private AutocompleteAdapter.AutoCompleteItemClicked adapterListener = (int position, GeocodingResult selected) -> {
@@ -182,8 +182,8 @@ public class AutoCompleteActivity extends AppCompatActivity {
 
 
     /**
-     * Called when search address text field changed.
-     * Send geocoding request just when text length more than one char.
+     * Callback method called when the search address text field has changed.
+     * Send geocoding request only when the text length is greater than one character.
      * @param text the query for forward geocoding
      */
     private void onSearchAddressTextChanged(@NonNull String text) {
@@ -210,8 +210,8 @@ public class AutoCompleteActivity extends AppCompatActivity {
 
 
     /**
-     * Forward geocoding by given a textual query.
-     * @param query the query for forward geocoding.
+     * Forward geocoding by given a textual query (address or place name).
+     * @param query The query for forward geocoding.
      */
     private void geocodingRequest(@NonNull String query) {
 
@@ -287,10 +287,10 @@ public class AutoCompleteActivity extends AppCompatActivity {
 
 
     /**
-     * A Helper method, Use to create intent with address injection to start this activity with address.
+     * A Helper method. Use to create intent with address injection to start this activity with an address.
      * @param context The context of the activity sender.
-     * @param query an address or place name to inject to autocomplete edit text.
-     * @return an intent to {@link AutoCompleteActivity} with inject query as extra.
+     * @param query An address or place name to inject to the auto-complete edit text.
+     * @return An intent to {@link AutoCompleteActivity} with inject query as extra.
      */
     @NonNull
     public static Intent createIntent(@NonNull Context context, @Nullable String query) {
@@ -304,8 +304,8 @@ public class AutoCompleteActivity extends AppCompatActivity {
 
 
     /**
-     * Get inject geocoding query if exist.
-     * @return geocoding query if exist.
+     * Get inject geocoding query if it exists.
+     * @return geocoding query if it exist.
      */
     @Nullable
     public String getExtraGeocodingQuery() {

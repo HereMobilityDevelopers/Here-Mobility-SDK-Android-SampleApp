@@ -54,9 +54,9 @@ public class RideStatusAdapter extends RecyclerView.Adapter<RideStatusAdapter.Ri
 
 
     /**
-     * Update recodes list.
+     * Update records list.
      * @param records The records to show.
-     * @param currentStatus current status of ride.
+     * @param currentStatus The current status of the ride.
      */
     @UiThread
     public void updateDataSource(@NonNull List<RideStatusLog.Record> records,@NonNull RideStatusLog.Status currentStatus){

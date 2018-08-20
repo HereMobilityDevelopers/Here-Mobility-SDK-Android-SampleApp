@@ -33,7 +33,7 @@ public class RidesAdapter extends RecyclerView.Adapter<RidesAdapter.RideItem> {
 
 
         /**
-         * Callback method, notify when ride item selected.
+         * Callback method, called when a ride item is selected.
          * @param ride selected {@link Ride}.
          */
         void rideItemSelected(@NonNull Ride ride);
@@ -137,7 +137,7 @@ public class RidesAdapter extends RecyclerView.Adapter<RidesAdapter.RideItem> {
 
 
         /**
-         * Estimate time arrive.
+         * Estimate time of arrival.
          */
         @NonNull
         TextView eta;

@@ -67,7 +67,7 @@ public class PublicTransportAdapter extends RecyclerView.Adapter<PublicTransport
 
     /**
      * Data source setter.
-     * @param dataSource List of PublicTransportRouteLeg.
+     * @param dataSource List of PublicTransportRouteLeg objects.
      */
     public void setDataSource(@NonNull List<PublicTransportRouteLeg> dataSource) {
         this.dataSource = dataSource;

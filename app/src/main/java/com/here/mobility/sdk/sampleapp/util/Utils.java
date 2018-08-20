@@ -14,9 +14,9 @@ public class Utils {
 
 
     /**
-     * Load image from url
-     * @param url the image url
-     * @return the drawable if success otherwise null.
+     * Load image from URL
+     * @param url the image URL
+     * @return The drawable if the image load succeeded; otherwise null.
      */
     @Nullable
     public static Drawable loadImageFromURL(@NonNull String url) {

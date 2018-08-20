@@ -30,8 +30,8 @@ public class AuthUtils {
      *
      * @param appKey The app key
      * @param userId The user identifier
-     * @param expiration The expiration of token in seconds
-     * @param key the app secret
+     * @param expiration The expiration of the token in seconds
+     * @param key The app secret
      * @return The hashed string
      */
     @NonNull
@@ -61,8 +61,8 @@ public class AuthUtils {
 
 
     /**
-     * Register user to sdk.
-     * @param userID the user name.
+     * Register user for the HERE Demand SDK.
+     * @param userID The user ID.
      */
     public static void registerUser(@NonNull String userID, @NonNull String appID, @NonNull String appSecret){
 

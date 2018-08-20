@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.PopupMenu;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,20 +40,21 @@ public class RideDetailsFragment extends Fragment {
      * fragment to allow an interaction in this fragment to be communicated
      * to the activity.
      */
-    public interface RideDetailsFragmentCallback{
+    public interface RideDetailsFragmentCallback {
 
 
         /**
-         * Notify when the user finish to fill the form with all mandatory fields.
-         * @param passengerDetails passenger details
-         * @param constraints the booking constraint of ride.
-         * @param note user ride note.
-         * @param preBookTime leave after, pre-book time in timestamp, null if leave time is now.
+         * Called when the user finishes filling in the form with all mandatory fields.
+         * @param passengerDetails The passenger details
+         * @param constraints The booking constraints of ride.
+         * @param note Optional user note.
+         * @param preBookTime The pre-booked pickup time for a future ride. Null for an immediate ride (leave now).
          */
         void onRideDetailsFill(@NonNull PassengerDetails passengerDetails,
                                @NonNull BookingConstraints constraints,
                                @Nullable String note,
-                               @Nullable Long preBookTime);
+                               @Nullable Long preBookTime,
+                               boolean subscribeToMessages);
     }
 
 
@@ -85,21 +87,21 @@ public class RideDetailsFragment extends Fragment {
 
 
     /**
-     * Booking leave date.
+     * Booking leave date/time.
      */
     @NonNull
     TextView leaveTime;
 
 
     /**
-     * Pre book timestamp, null means to now.
+     * Pre-booked timestamp; null means the ride should leave now.
      */
     @Nullable
     Long preBookTime;
 
 
     /**
-     * Suitcases counter view
+     * Suitcase counter view
      */
     @NonNull
     private CounterView suitcases;
@@ -113,8 +115,15 @@ public class RideDetailsFragment extends Fragment {
 
 
     /**
+     * Subscribe to messages switcher.
+     */
+    @NonNull
+    private Switch subscribeToMessagesSwitcher;
+
+
+    /**
      * Use this factory method to create a new instance.
-     * @return A new instance of fragment RideDetailsFragment.
+     * @return A new instance of RideDetailsFragment.
      */
     public static RideDetailsFragment newInstance() {
         return new RideDetailsFragment();
@@ -132,8 +141,9 @@ public class RideDetailsFragment extends Fragment {
         passenger = view.findViewById(R.id.ride_details_passenger_counter);
         suitcases = view.findViewById(R.id.ride_details_suitcase_counter);
         leaveTime = view.findViewById(R.id.ride_details_leave_time);
+        subscribeToMessagesSwitcher = view.findViewById(R.id.subscribe_to_messages_switcher);
         view.findViewById(R.id.ride_details_action_button)
-                .setOnClickListener( v -> getRidesClicked() );
+                .setOnClickListener(v -> getRidesClicked());
         view.findViewById(R.id.book_now_layout).setOnClickListener(this::bookNowItemClicked);
         return view;
     }
@@ -150,7 +160,7 @@ public class RideDetailsFragment extends Fragment {
             if (actionBat != null) {
                 toolbar.setTitle(R.string.ride_options);
                 actionBat.setDisplayHomeAsUpEnabled(true);
-                toolbar.setNavigationOnClickListener( v -> {
+                toolbar.setNavigationOnClickListener(v -> {
                     Activity activity = getActivity();
                     if (activity != null) {
                         activity.onBackPressed();
@@ -179,22 +189,27 @@ public class RideDetailsFragment extends Fragment {
         listener = null;
     }
 
-    
+
     /**
-     * Called when ride offers action button clicked.
+     * Called when the "Ride Offers" action button is clicked.
      */
-    public void getRidesClicked(){
+    public void getRidesClicked() {
 
         PassengerDetails passengerDetails = getPassengerDetails();
         String note = this.note.getText().toString();
 
         if (passengerDetails != null && listener != null) {
-            listener.onRideDetailsFill(passengerDetails, getBookingConstraints(), note, preBookTime);
+            listener.onRideDetailsFill(
+                    passengerDetails,
+                    getBookingConstraints(),
+                    note,
+                    preBookTime,
+                    subscribeToMessagesSwitcher.isChecked());
             AppCompatActivity activity = (AppCompatActivity) getActivity();
             if (activity != null) {
                 activity.getSupportFragmentManager().popBackStack();
             }
-        }else{
+        } else {
             Toast.makeText(getContext(), R.string.fill_mandatory_fields, Toast.LENGTH_SHORT).show();
         }
 
@@ -202,15 +217,15 @@ public class RideDetailsFragment extends Fragment {
 
 
     /**
-     * Booking item clicked.
-     * @param clickedItem anchor view to show PopupMenu.
+     * Called when a Booking item is clicked.
+     * @param clickedItem The anchor view to show PopupMenu.
      */
-    public void bookNowItemClicked(@NonNull View clickedItem){
+    public void bookNowItemClicked(@NonNull View clickedItem) {
         PopupMenu menu = new PopupMenu(getContext(), clickedItem);
         menu.inflate(R.menu.booking_menu);
         menu.setOnMenuItemClickListener(item -> {
 
-            switch (item.getItemId()){
+            switch (item.getItemId()) {
                 case R.id.booking_leave_now:
                     setLeaveTimeToNow();
                     break;
@@ -227,19 +242,19 @@ public class RideDetailsFragment extends Fragment {
 
 
     /**
-     * Set the leave time to leave now.
+     * Set the leave time to "now".
      */
-    private void setLeaveTimeToNow(){
+    private void setLeaveTimeToNow() {
         preBookTime = null;
         leaveTime.setText(R.string.leave_now);
     }
 
 
     /**
-     * Set leave time to later.
-     * @param calendar a valid calendar.
+     * Set leave time to a future time.
+     * @param calendar A valid Calendar object.
      */
-    private void setLeaveTime(@NonNull Calendar calendar){
+    private void setLeaveTime(@NonNull Calendar calendar) {
         preBookTime = calendar.getTimeInMillis();
         SimpleDateFormat simple = new SimpleDateFormat("HH:mm", Locale.getDefault());
         simple.setTimeZone(calendar.getTimeZone());
@@ -251,22 +266,22 @@ public class RideDetailsFragment extends Fragment {
     /**
      * Show TimePickerDialog.
      */
-    private void showTimePickerDialog(){
+    private void showTimePickerDialog() {
         Calendar calendar = Calendar.getInstance();
         //The minimum time for pre-book offers is NOW() + 30 minutes.
-        calendar.add(Calendar.MINUTE,30);
+        calendar.add(Calendar.MINUTE, 30);
 
-        TimePickerDialog picker = new TimePickerDialog(getContext(), R.style.BookingDatePicker,(view, hourOfDay, minute) -> {
+        TimePickerDialog picker = new TimePickerDialog(getContext(), R.style.BookingDatePicker, (view, hourOfDay, minute) -> {
             Calendar minimumTimeForPreBook = Calendar.getInstance();
-            minimumTimeForPreBook.add(Calendar.MINUTE,30);
+            minimumTimeForPreBook.add(Calendar.MINUTE, 30);
             Calendar pickerTime = Calendar.getInstance();
             pickerTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
             pickerTime.set(Calendar.MINUTE, minute);
             //check if pickerTime is valid.
-            if (pickerTime.after(minimumTimeForPreBook)){
+            if (pickerTime.after(minimumTimeForPreBook)) {
                 setLeaveTime(pickerTime);
-            }else{
-                Toast.makeText(getContext(),R.string.invalid_prebooking_time,Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(getContext(), R.string.invalid_prebooking_time, Toast.LENGTH_LONG).show();
             }
 
         }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true);
@@ -276,16 +291,16 @@ public class RideDetailsFragment extends Fragment {
 
 
     /**
-     * Getter- get passenger details
-     * @return If all mandatory field are valid return {@link PassengerDetails} otherwise null will be returned.
+     * Gets passenger details.
+     * @return If all mandatory fields are valid, returns {@link PassengerDetails}, otherwise returns null.
      */
     @Nullable
-    private PassengerDetails getPassengerDetails(){
+    private PassengerDetails getPassengerDetails() {
         PassengerDetails passengerDetails = null;
         String name = this.name.getText().toString();
         String phone = this.phone.getText().toString();
 
-        if (!name.isEmpty() && !phone.isEmpty()){
+        if (!name.isEmpty() && !phone.isEmpty()) {
             passengerDetails = PassengerDetails.builder()
                     .setName(name)
                     .setPhoneNumber(phone).build();
@@ -295,11 +310,11 @@ public class RideDetailsFragment extends Fragment {
 
 
     /**
-     * Getter- get booking constraint
+     * Gets booking constraints.
      * @return {@link BookingConstraints}
      */
     @NonNull
-    private BookingConstraints getBookingConstraints(){
+    private BookingConstraints getBookingConstraints() {
         return BookingConstraints.create(passenger.getCounterValue(), suitcases.getCounterValue());
     }
 }

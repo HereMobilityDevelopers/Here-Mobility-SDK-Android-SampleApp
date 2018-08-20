@@ -34,7 +34,7 @@ public class RideOffersAdapter extends RecyclerView.Adapter<RideOffersAdapter.Ri
 
 
         /**
-         * Callback method, notify when ride offer item selected.
+         * Callback method, called when a ride offer item is selected.
          * @param offer selected {@link RideOffer}.
          */
         void offerItemSelected(@NonNull RideOffer offer);
@@ -91,7 +91,7 @@ public class RideOffersAdapter extends RecyclerView.Adapter<RideOffersAdapter.Ri
 
     /**
      * Bind taxi offer to cell.
-     * @param offer the taxi offer
+     * @param offer The taxi offer to bind
      */
     private void bindTaxiOffer(@NonNull TaxiRideOffer offer, @NonNull RideOfferItem holder){
         holder.supplierName.setText(offer.getSupplier().getEnglishName());
@@ -126,7 +126,7 @@ public class RideOffersAdapter extends RecyclerView.Adapter<RideOffersAdapter.Ri
 
     /**
      * Bind public transport offer to cell.
-     * @param offer the public transport offer
+     * @param offer The public transport offer to bind
      */
     public void bindPublicTransportOffer(@NonNull PublicTransportRideOffer offer, @NonNull RideOfferItem holder){
 
@@ -198,7 +198,7 @@ public class RideOffersAdapter extends RecyclerView.Adapter<RideOffersAdapter.Ri
 
 
         /**
-         * Estimate time arrive.
+         * Estimate time of arrival.
          */
         @NonNull
         TextView eta;

@@ -15,7 +15,7 @@ public class SampleApplication extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
 
-        //HereMobilitySdk initialization must be called in onCreate() method to initialize the SDK.
+        //HereMobilitySdk initialization must be called in your app's onCreate() method to initialize the SDK.
         HereMobilitySdk.init(this);
 
         //Returns whether the current process is the SDK agent process.
@@ -23,6 +23,6 @@ public class SampleApplication extends MultiDexApplication {
             return;
         }
 
-        //put here the rest of you app sdks initialization.
+        // Put the rest of your app's initialization here
     }
 }

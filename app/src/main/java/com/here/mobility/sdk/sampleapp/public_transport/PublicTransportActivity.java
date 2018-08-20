@@ -60,9 +60,9 @@ public class PublicTransportActivity extends AppCompatActivity {
 
     /**
      * Start {@link PublicTransportActivity} to display details of the given {@link PublicTransportRideOffer}
-     * @param context context of the sender
-     * @param publicTransportRideOffer an object of public transport offer.
-     * @return An intent with extra params the pass PublicTransportRideOffer to this activity.
+     * @param context The sender's context
+     * @param publicTransportRideOffer A public transport offer.
+     * @return An intent with extra parameters the pass PublicTransportRideOffer to this activity.
      */
     @NonNull
     public static Intent createIntent(@NonNull Context context, @NonNull PublicTransportRideOffer publicTransportRideOffer){
@@ -73,9 +73,9 @@ public class PublicTransportActivity extends AppCompatActivity {
 
 
     /**
-     * Getter get PublicTransportRideOffer from Intent.extra.
-     * @return PublicTransportRideOffer if exist otherwise throw RuntimeException.
-     * @throws RuntimeException for cases that PublicTransportRideOffer not provided.
+     * Gets PublicTransportRideOffer from Intent.extra.
+     * @return PublicTransportRideOffer if it exists; otherwise throws a RuntimeException.
+     * @throws RuntimeException for cases that PublicTransportRideOffer is not provided.
      */
     @NonNull
     public PublicTransportRideOffer getPTOffer(){

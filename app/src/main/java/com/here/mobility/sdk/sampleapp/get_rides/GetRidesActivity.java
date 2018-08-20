@@ -31,6 +31,7 @@ import com.here.mobility.sdk.demand.PublicTransportRideOffer;
 import com.here.mobility.sdk.demand.Ride;
 import com.here.mobility.sdk.demand.RideOffer;
 import com.here.mobility.sdk.demand.RideOffersRequest;
+import com.here.mobility.sdk.demand.RidePreferences;
 import com.here.mobility.sdk.demand.RideQuery;
 import com.here.mobility.sdk.demand.RideQueryResponse;
 import com.here.mobility.sdk.demand.RideStatusLog;
@@ -64,7 +65,7 @@ import java.util.Locale;
 /**********************************************************
  * Copyright © 2018 HERE Global B.V. All rights reserved. *
  **********************************************************/
-public class GetRidesActivity extends AppCompatActivity implements MapView.MapReadyListener , RideDetailsFragment.RideDetailsFragmentCallback {
+public class GetRidesActivity extends AppCompatActivity implements MapView.MapReadyListener, RideDetailsFragment.RideDetailsFragmentCallback {
 
 
     /**
@@ -121,35 +122,35 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
 
 
     /**
-     * The ride pickup.
+     * The ride pickup location.
      */
     @Nullable
     private GeocodingResult pickup;
 
 
     /**
-     * The ride destination.
+     * The ride destination location.
      */
     @Nullable
     private GeocodingResult destination;
 
 
     /**
-     * The ride pickup.
+     * The ride pickup marker.
      */
     @Nullable
     private Marker pickupMarker;
 
 
     /**
-     * The ride destination.
+     * The ride destination marker.
      */
     @Nullable
     private Marker destinationMarker;
 
 
     /**
-     * Save a polyline which the polyline can later be removed.
+     * Save a polyline which can later be removed.
      */
     private Polyline routePolyline;
 
@@ -172,6 +173,13 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
      */
     @Nullable
     private List<Ride> activeRides;
+
+
+    /**
+     * Ride preferences.
+     */
+    @Nullable
+    private RidePreferences ridePreferences;
 
 
     @Override
@@ -203,15 +211,15 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
     /**
      * Update UI.
      */
-    private void updateUI(){
+    private void updateUI() {
         findViewById(R.id.destAddressView).setOnClickListener(view -> {
-            String query = ((EditText)view).getText().toString();
-            startActivityForResult(AutoCompleteActivity.createIntent(GetRidesActivity.this,query),DESTINATION_GEOCODING_REQUEST);
+            String query = ((EditText) view).getText().toString();
+            startActivityForResult(AutoCompleteActivity.createIntent(GetRidesActivity.this, query), DESTINATION_GEOCODING_REQUEST);
 
         });
         findViewById(R.id.pickupAddressView).setOnClickListener(view -> {
-            String query = ((EditText)view).getText().toString();
-            startActivityForResult(AutoCompleteActivity.createIntent(GetRidesActivity.this,query),PICKUP_GEOCODING_REQUEST);
+            String query = ((EditText) view).getText().toString();
+            startActivityForResult(AutoCompleteActivity.createIntent(GetRidesActivity.this, query), PICKUP_GEOCODING_REQUEST);
         });
         findViewById(R.id.show_rides_button).setOnClickListener(this::onShowRidesButtonClicked);
         findViewById(R.id.show_future_rides_button).setOnClickListener(v -> {
@@ -223,8 +231,8 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
 
 
     /**
-     * this callback is called when the map is set-up, before we render any tiles to the screen - so this is the place to set those values
-     * @param mapController map controller to interact with the map.
+     * This callback is called when the map is set-up, before we render any tiles to the screen - so this is the place to set those values.
+     * @param mapController Map controller to interact with the map.
      */
     @Override
     public void onMapReady(@NonNull MapController mapController) {
@@ -236,7 +244,7 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
 
         if (!PermissionUtils.hasAnyLocationPermissions(this)) {
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSIONS_CODE);
-        }else{
+        } else {
             startLocationUpdates();
         }
     }
@@ -251,8 +259,8 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        if (resultCode == RESULT_OK){
-            if (requestCode == PICKUP_GEOCODING_REQUEST){
+        if (resultCode == RESULT_OK) {
+            if (requestCode == PICKUP_GEOCODING_REQUEST) {
 
                 GeocodingResult pickup = data.getParcelableExtra(AutoCompleteActivity.GEOCODING_RESULT);
                 this.pickup = pickup;
@@ -261,19 +269,19 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
                 //add pickup marker
                 showPickupMarkerAt(pickup.getLocation());
                 String address = String.format(Locale.getDefault(),
-                        "%s, %s",pickup.getTitle(),pickup.getAddressText());
-                ((TextView)findViewById(R.id.pickupAddressView))
+                        "%s, %s", pickup.getTitle(), pickup.getAddressText());
+                ((TextView) findViewById(R.id.pickupAddressView))
                         .setText(address);
 
-            }else if (requestCode == DESTINATION_GEOCODING_REQUEST){
+            } else if (requestCode == DESTINATION_GEOCODING_REQUEST) {
                 GeocodingResult destination = data.getParcelableExtra(AutoCompleteActivity.GEOCODING_RESULT);
                 this.destination = destination;
 
                 //add destination marker
                 showDestinationMarkerAt(destination.getLocation());
                 String address = String.format(Locale.getDefault(),
-                        "%s, %s",destination.getTitle(),destination.getAddressText());
-                ((TextView)findViewById(R.id.destAddressView))
+                        "%s, %s", destination.getTitle(), destination.getAddressText());
+                ((TextView) findViewById(R.id.destAddressView))
                         .setText(address);
             }
         }
@@ -282,15 +290,15 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
 
 
     /**
-     * Notify that ride details pickup or destination has changed.
+     * Called when ride details (pickup or destination) have changed.
      */
     private void notifyRideDetailsChanged() {
-        if ( pickup != null && destination != null ) {
+        if (pickup != null && destination != null) {
 
             //lazy initialization for RoutingClient.
             if (routingClient == null) {
                 routingClient = RoutingClient.newInstance(this);
-            }else{
+            } else {
                 routingClient.cancelAllActiveRequests();
             }
             //Request route calculation between pickup to destination.
@@ -311,10 +319,11 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
     private ResponseListener<RouteResponse> routeListener = new ResponseListener<RouteResponse>() {
         @Override
         public void onResponse(RouteResponse routeResponse) {
-            if(routeResponse.getRoute() != null){
+            if (routeResponse.getRoute() != null) {
                 drawRoute(routeResponse.getRoute());
             }
         }
+
 
         @Override
         public void onError(@NonNull ResponseException e) {
@@ -325,63 +334,66 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
 
     /**
      * Draw route on map by adding route polyline to the map.
-     * @param route calculated route that received from {@link RouteResponse}
+     * @param route Calculated route received from {@link RouteResponse}
      */
-    private void drawRoute(@NonNull Route route){
+    private void drawRoute(@NonNull Route route) {
 
-        if (routePolyline != null){
+        if (routePolyline != null) {
             mapController.removePolyline(routePolyline);
         }
         routePolyline = mapController.addPolyline(route.getGeometry(), PolylineStyle.builder().build());
 
         //Map center. After adding route polylines to map we need center the map around the route.
         //The best practice to do so is use route bounding box and padding in needed.
-        mapController.showBoundingBox(route.getGeometry().getBoundingBox(),new Rect(20, 180, 20, 70));
+        mapController.showBoundingBox(route.getGeometry().getBoundingBox(), new Rect(20, 180, 20, 70));
 
 
     }
 
 
     /**
-     * Call when show rides action button clicked.
+     * Called when "Show Rides" action button is clicked.
      */
-    public void onShowRidesButtonClicked(@NonNull View view){
-        if (pickup != null && destination != null){
+    public void onShowRidesButtonClicked(@NonNull View view) {
+        if (pickup != null && destination != null) {
             Fragment rideDetailsFragment = getSupportFragmentManager().findFragmentByTag(RIDE_DETAILS_FRAGMENT);
             if (rideDetailsFragment == null) {
                 rideDetailsFragment = RideDetailsFragment.newInstance();
             }
-            if (!rideDetailsFragment.isAdded()){
+            if (!rideDetailsFragment.isAdded()) {
                 getSupportFragmentManager().beginTransaction().
-                        add(R.id.ride_details_container,rideDetailsFragment,RIDE_DETAILS_FRAGMENT)
+                        add(R.id.ride_details_container, rideDetailsFragment, RIDE_DETAILS_FRAGMENT)
                         .addToBackStack(null).commit();
             }
-        }else{
+        } else {
             Toast.makeText(this, R.string.fill_mandatory_fields, Toast.LENGTH_SHORT).show();
         }
     }
 
 
     /**
-     *
-     * @param passengerDetails passenger details
-     * @param constraints the booking constraint of ride.
-     * @param note user ride note.
-     * @param preBookTime leave after, pre-book time in timestamp, null if leave time is now.
+	 * Called when the ride details are filled.
+     * 
+     * @param passengerDetails Passenger details
+     * @param constraints The booking constraint of the ride.
+     * @param note Optional user note.
+     * @param preBookTime The pre-booked pickup time for a future ride. Null for an immediate ride (leave now).
      */
     @Override
     public void onRideDetailsFill(@NonNull PassengerDetails passengerDetails,
                                   @NonNull BookingConstraints constraints,
                                   @Nullable String note,
-                                  @Nullable Long preBookTime) {
+                                  @Nullable Long preBookTime,
+                                  boolean subscribeToMessages) {
         this.passengerDetails = passengerDetails;
-        RideWaypoints rideWaypoints = RideWaypoints.create(pickup.getLocation(),destination.getLocation());
+        this.ridePreferences = RidePreferences.create(subscribeToMessages);
+        RideWaypoints rideWaypoints = RideWaypoints.create(pickup.getLocation(), destination.getLocation());
         requestRideOffers(rideWaypoints, constraints, note, preBookTime);
     }
 
 
     /**
-     * Ride offers request.
+     * Request ride offers with the given details.
      */
     private void requestRideOffers(@NonNull RideWaypoints rideWaypoints,
                                    @NonNull BookingConstraints constraints,
@@ -397,7 +409,7 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
         }
 
         //set passenger note
-        if (passengerNote != null){
+        if (passengerNote != null) {
             rideOfferBuilder.setPassengerNote(passengerNote);
         }
 
@@ -413,13 +425,14 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
 
 
     /**
-     * A callback method that received ride offers after {@link DemandClient#getRideOffers(RideOffersRequest)} request.
+     * A callback method that receives ride offers after a {@link DemandClient#getRideOffers(RideOffersRequest)} request.
      */
     private ResponseListener<List<RideOffer>> rideOffersFutureListener = new ResponseListener<List<RideOffer>>() {
         @Override
         public void onResponse(@NonNull List<RideOffer> rideOffers) {
             showRideOffersActivity(rideOffers);
         }
+
 
         @Override
         public void onError(@NonNull ResponseException e) {
@@ -430,23 +443,24 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
 
     /**
      * Start Ride offers activity.
-     * @param rideOffers list of ride offers.
+     * @param rideOffers The list of ride offers.
      */
-    private void showRideOffersActivity(List<RideOffer> rideOffers){
+    private void showRideOffersActivity(List<RideOffer> rideOffers) {
         if (passengerDetails != null) {
 
-            if(rideOffers.size() > 0){
+            if (rideOffers.size() > 0) {
 
                 ArrayList<TaxiRideOffer> taxiRideOffers = Lists.newArrayList();
                 ArrayList<PublicTransportRideOffer> ptRideOffers = Lists.newArrayList();
 
-                for(RideOffer offer : rideOffers){
+                for (RideOffer offer : rideOffers) {
                     offer.accept(new RideOffer.Visitor<Void>() {
                         @Override
                         public Void visit(@NonNull TaxiRideOffer taxiRideOffer) {
                             taxiRideOffers.add((TaxiRideOffer) offer);
                             return null;
                         }
+
 
                         @Override
                         public Void visit(@NonNull PublicTransportRideOffer publicTransportRideOffer) {
@@ -457,8 +471,8 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
                 }
 
                 startActivity(RideOffersActivity
-                        .createIntent(this, taxiRideOffers, ptRideOffers, passengerDetails));
-            }else{
+                        .createIntent(this, taxiRideOffers, ptRideOffers, passengerDetails, ridePreferences));
+            } else {
                 Toast.makeText(this, R.string.error_no_ride_options_results, Toast.LENGTH_LONG).show();
             }
         }
@@ -466,12 +480,12 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
 
 
     /**
-     * Request ride attach to user.
+     * Request rides for the current user.
      */
     private void getActiveRides() {
 
         //Build a ride query.
-        RideQuery rideQuery =  RideQuery.builder()
+        RideQuery rideQuery = RideQuery.builder()
                 .setStatusFilter(RideQuery.StatusFilter.ALL)
                 .build();
 
@@ -492,6 +506,7 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
             setActiveRides(rideQueryResponse.getRides());
         }
 
+
         @Override
         public void onError(@NonNull ResponseException e) {
             // If the user authentication token that was provided by HereMobilitySDK.setUserAuthInfo() is expired,
@@ -499,9 +514,9 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
             // again with a valid token, and initiate the SDK API call again.
             // Note that this exception can be returned from any API call, so this error handling should
             // be implemented on every onError call.
-            if(e.getRootCause() instanceof UserAuthenticationException){
+            if (e.getRootCause() instanceof UserAuthenticationException) {
                 showRegistrationDialog();
-            }else{
+            } else {
                 Toast.makeText(GetRidesActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
             }
         }
@@ -515,7 +530,7 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
         RegistrationDialog dialog = new RegistrationDialog(GetRidesActivity.this);
         dialog.setPositiveButton(R.string.register, (d, which) -> {
             String userName = dialog.getUserName();
-            if (!userName.isEmpty()){
+            if (!userName.isEmpty()) {
 
                 // The user registration should be done with your app's backend (see the documentation for more info).
                 // This is a snippet to generate the token in the app, for testing purposes.
@@ -523,8 +538,8 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
                         getString(R.string.here_sdk_app_id),
                         getString(R.string.here_sdk_app_secret));
                 getActiveRides();
-            }else{
-                Toast.makeText(GetRidesActivity.this,R.string.register_not_valid_user_name,Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(GetRidesActivity.this, R.string.register_not_valid_user_name, Toast.LENGTH_LONG).show();
             }
         });
         dialog.show();
@@ -532,10 +547,10 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
 
 
     /**
-     * Set future rides and update UI.
+     * Set ongoing and future rides and update the UI.
      * @param rides list of rides.
      */
-    private void setActiveRides(@NonNull List<Ride> rides){
+    private void setActiveRides(@NonNull List<Ride> rides) {
 
         //show rides with type ongoing or future.
         activeRides = Lists.newArrayList();
@@ -543,7 +558,7 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
         for (Ride ride : rides) {
             boolean isActive = ride.getStatusLog().getCurrentStatus() != RideStatusLog.Status.REJECTED &&
                     ride.getStatusLog().getCurrentStatus().ordinal() < RideStatusLog.Status.COMPLETED.ordinal();
-            if (isActive){
+            if (isActive) {
                 activeRides.add(ride);
             }
         }
@@ -567,9 +582,9 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
 
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
-        if (requestCode == LOCATION_PERMISSIONS_CODE){
-            if ((grantResults.length > 0) && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == LOCATION_PERMISSIONS_CODE) {
+            if ((grantResults.length > 0) && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 startLocationUpdates();
             }
         }
@@ -580,7 +595,7 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
      * Start user location updates.
      */
     @SuppressLint("MissingPermission")
-    private void startLocationUpdates(){
+    private void startLocationUpdates() {
 
         mapController.getUserLocationMarkerManager().setLocationSource(new FusedUserLocationSource(this));
 
@@ -589,12 +604,13 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
 
     /**
      * Creates a marker at the given location.
-     * @param location the marker location
-     * @param imageRes image res of marker icon.
+	 *
+     * @param location The marker location
+     * @param imageRes The image resolution of the marker icon.
      * @return Marker
      */
     @NonNull
-    private Marker createMarker(@NonNull LatLng location, @DrawableRes int imageRes){
+    private Marker createMarker(@NonNull LatLng location, @DrawableRes int imageRes) {
 
         // Styling object of the marker. Can include the image to show, set it's size, etc.
         MapImageStyle style = MapImageStyle.builder(this, imageRes).build();
@@ -604,14 +620,14 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
 
 
     /**
-     * Show pickup marker at point.
-     * @param point the point.
+     * Show the pickup marker at the given point.
+     * @param point The point where the marker should be shown.
      */
-    public void showPickupMarkerAt(@NonNull LatLng point){
-        if (pickupMarker == null){
+    public void showPickupMarkerAt(@NonNull LatLng point) {
+        if (pickupMarker == null) {
             // Create marker lazily.
             pickupMarker = createMarker(point, R.drawable.ic_location_on_black_24dp);
-        }else{
+        } else {
             // Otherwise just set marker location.
             pickupMarker.setPoint(point);
         }
@@ -619,14 +635,14 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
 
 
     /**
-     * Show pickup marker at point.
-     * @param point the point.
+     * Show the destination marker at the given point.
+     * @param point The point where the marker should be shown.
      */
-    public void showDestinationMarkerAt(@NonNull LatLng point){
+    public void showDestinationMarkerAt(@NonNull LatLng point) {
         if (destinationMarker == null) {
             // Create marker lazily.
             destinationMarker = createMarker(point, R.drawable.ic_pin_drop_black_24dp);
-        }else{
+        } else {
             // Otherwise just set marker location.
             destinationMarker.setPoint(point);
         }

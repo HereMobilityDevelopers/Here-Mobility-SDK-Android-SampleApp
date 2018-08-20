@@ -12,7 +12,7 @@ public class Constant {
 
 
     /**
-     * Expiration hours login session.
+     * Hours until the login session expires.
      */
     public static final int EXPIRATION_HOURS = 48;
 }
