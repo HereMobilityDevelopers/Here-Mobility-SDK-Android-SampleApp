@@ -19,22 +19,22 @@ To request these credentials, contact us at [mobility_developers@here.com]().
 
 ### Cloning the Sample App Git Repository
 
-1. Clone this repository.
-2. Replace App Key and App Secret in the `here_mobility_app_key.xml`.
-3. Open it in Android Studio and run the app.
+1.  Clone this repository.
+2.  Replace App Key and App Secret in the `here_mobility_app_key.xml`.
+3.  Open it in Android Studio and run the app.
 
 ## The Sample App
 
 Here is an overview of the workflow for booking a ride and monitoring its progress, using the HERE Mobility SDK.
 Click on a step name to go to its corresponding code example.
 
- |Step | Description
- |:----|:------------
- |[Forward geocoding](#forward-geocoding) | Retrieve the geo-location for an address or place name
- |[Get the ride route](#get-ride-routes) | Get the ride's route, based on its start and end locations
- |[Get ride offers](#get-ride-offers) | Get ride offers from public or private ride suppliers
- |[Book a ride](#book-a-ride)| Book one of the ride offers received
- |[Register for ride updates](#register-for-ride-updates) | Register for updates about the ride's progress
+| Step                                                    | Description                                                |
+| :------------------------------------------------------ | :--------------------------------------------------------- |
+| [Forward geocoding](#forward-geocoding)                 | Retrieve the geo-location for an address or place name     |
+| [Get the ride route](#get-ride-routes)                  | Get the ride's route, based on its start and end locations |
+| [Get ride offers](#get-ride-offers)                     | Get ride offers from public or private ride suppliers      |
+| [Book a ride](#book-a-ride)                             | Book one of the ride offers received                       |
+| [Register for ride updates](#register-for-ride-updates) | Register for updates about the ride's progress             |
 
 ### Forward Geocoding
 
@@ -46,23 +46,21 @@ Reverse geo-coding is the conversion of a geo-location (latitude/longitude pair)
 
 The following code snippet shows how to query for a geocoding result, based on a query string and location coordinates.
 
-
 ```java
-
 //Create forward geocoding request.
- GeocodingRequest geocodingRequest = GeocodingRequest.newForwardRequest(
-         query, //the query for forward geocoding.
-         location, //The location around which to search for results.
-         languageCode, //ISO 639-1 language code for the preferred language of the results
-         resultTypes); // The result types to obtain.
+GeocodingRequest geocodingRequest = GeocodingRequest.newForwardRequest(
+        query,
+        location, //The location around which to search for results.
+        countryCode, //ISO 3166 alpha 3 country to code used filter results.
+        languageCode, //ISO 639-1 language code for the preferred language of the results
+        resultTypes); // The result types to obtain.
 
- //send the request.
- ResponseFuture<GeocodingResponse> autocompleteResponse =
-         autocompleteClient.geocode(geocodingRequest);
+//send the request.
+ResponseFuture<GeocodingResponse> autocompleteResponse =
+		      autocompleteClient.geocode(geocodingRequest);
 
- //register listener for updates.
- autocompleteResponse.registerListener(geocodingResponseResponseListener);
-
+//register listener for updates.
+autocompleteResponse.registerListener(geocodingResponseResponseListener);
 ```
 
 ### Get Ride Routes
@@ -71,10 +69,9 @@ In the HERE SDK Map Kit, routes are represented by "polylines", which are lines 
 
 The following code snippet shows how to retrieve routes with the given start and end locations.
 
-
 ```java
 //Initialize RouteClient.
-RoutingClient routingClient = new RoutingClient(this);
+RoutingClient routingClient = RoutingClient.newInstance(this);
 
 //Request route calculation between pickup to destination.
   RouteRequest routeRequest = RouteRequest.create(pickup, destination);
@@ -83,7 +80,6 @@ RoutingClient routingClient = new RoutingClient(this);
   routingClient.
           requestRoute(routeRequest).
           registerListener(routeListener);
-
 ```
 
 ### Get Ride Offers
@@ -96,7 +92,7 @@ The HERE SDK Demand Kit allows you to request ride offers based on various param
 
 ```java
 //Initialize RouteClient.
-RoutingClient routingClient = new RoutingClient(this);
+RoutingClient routingClient = RoutingClient.newInstance(this);
 
 //Request route calculation between pickup to destination.
   RouteRequest routeRequest = RouteRequest.create(pickup, destination);
@@ -105,10 +101,9 @@ RoutingClient routingClient = new RoutingClient(this);
   routingClient.
           requestRoute(routeRequest).
           registerListener(routeListener);
-
 ```
 
-####  Get ride offers based on a ride request object
+#### Get ride offers based on a ride request object
 
 ```java
 //RideOffersRequest builder.
@@ -130,9 +125,7 @@ ResponseFuture<List<RideOffer>> offersFuture = demandClient.getRideOffers(rideOf
 offersFuture.registerListener(rideOffersFutureListener);
 ```
 
-
 #### Handle ride offers according to type
-
 
 ```java
 offer.accept(new RideOffer.Visitor<Void>() {
@@ -165,16 +158,14 @@ PassengerDetails passengerDetails = PassengerDetails.builder()
 #### Book a ride based on a ride offer and passenger details
 
 ```java
-
-CreateRideRequest rideRequest = CreateRideRequest
-                            .create(taxiRideOffer.getOfferId(), passengerDetails);
+CreateRideRequest.Builder rideRequest = CreateRideRequest
+                            .builder(taxiRideOffer.getOfferId(), passengerDetails);
 
 //Request to book a ride.
-ResponseFuture<Ride> rideRequestFuture = demandClient.createRide(rideRequest);
+ResponseFuture<Ride> rideRequestFuture = demandClient.createRide(rideRequest.build());
 
 //Register for ride request updates.
 rideRequestFuture.registerListener(rideFutureListener);
-
 ```
 
 #### Register for ride updates
@@ -202,7 +193,6 @@ DemandClient.RideUpdateListener listener = new DemandClient.RideUpdateListener()
     };
 
 demandClient.registerToRideUpdates(rideId,listener);
-
 ```
 
 ## Support
