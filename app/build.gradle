@@ -26,7 +26,7 @@ android {
 
 dependencies {
     //Here mobility SDK version
-    def hereMobilitySdkVersion = '1.0.14'
+    def hereMobilitySdkVersion = '1.1.17'
 
     // Demand SDK accessing the demand API - requesting, booking and managing rides.
     implementation "com.here.mobility.sdk:demand:$hereMobilitySdkVersion"

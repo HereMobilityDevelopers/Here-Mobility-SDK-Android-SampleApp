@@ -17,6 +17,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.security.ProviderInstaller;
 import com.google.common.collect.Lists;
 import com.here.mobility.sdk.common.util.PermissionUtils;
 import com.here.mobility.sdk.core.auth.UserAuthenticationException;
@@ -185,6 +189,9 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        installProvider();
+
         setContentView(R.layout.activity_get_rides);
 
         //Initialize DemandClient.
@@ -196,6 +203,28 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
             mapFragment.loadMapAsync(this);
         }
         updateUI();
+    }
+
+
+    /**
+     * Install the security provider to protect against SSL exploits.
+     *
+     * We are using TLS version 1.2 which is not supported in API <= 19.
+     * So we need to install the gms security provider, otherwise, all network requests done by HereSDK will fail.
+     *
+     * See <a href="https://developer.android.com/training/articles/security-gms-provider</a> for more details
+     */
+    private void installProvider() {
+        try {
+            ProviderInstaller.installIfNeeded(this);
+        } catch (GooglePlayServicesRepairableException e) {
+            // Indicates that Google Play services is out of date, disabled, etc.
+            // Prompt the user to install/update/enable Google Play services.
+            Log.e(LOG_TAG, "installProvider: GooglePlayServicesRepairableException: ", e);
+        } catch (GooglePlayServicesNotAvailableException e) {
+            // Indicates a non-recoverable error; the ProviderInstaller is not able to install an up-to-date Provider.
+            Log.e(LOG_TAG, "installProvider: GooglePlayServicesNotAvailableException: ", e);
+        }
     }
 
 

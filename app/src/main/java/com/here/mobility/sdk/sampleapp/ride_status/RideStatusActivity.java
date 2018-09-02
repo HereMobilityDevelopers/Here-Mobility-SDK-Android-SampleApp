@@ -16,6 +16,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -112,6 +113,12 @@ public class RideStatusActivity extends AppCompatActivity {
     private TextView priceTextView;
 
 
+    /**
+     * Button that sends cancel ride request.
+     */
+    private Button cancelRideButton;
+
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -147,14 +154,13 @@ public class RideStatusActivity extends AppCompatActivity {
         rideRecordList.setLayoutManager(layoutManager);
         rideRecordList.setItemAnimator(new DefaultItemAnimator());
         rideRecordList.setAdapter(adapter);
-        findViewById(R.id.ride_status_cancel_ride_btn).setOnClickListener( v -> {
-            cancelRide(this.ride);
-        });
 
         supplierName = findViewById(R.id.supplierNameView);
         driverName = findViewById(R.id.driverNameView);
         driverPlateVehicle = findViewById(R.id.driverPlateVehicle);
         priceTextView = findViewById(R.id.estimatedPriceView);
+        cancelRideButton = findViewById(R.id.ride_status_cancel_ride_btn);
+        cancelRideButton.setOnClickListener( v -> cancelRide(this.ride));
     }
 
 
@@ -328,8 +334,10 @@ public class RideStatusActivity extends AppCompatActivity {
           }
 
         // If the cancellation policy if not allowed, do not allow the user to ask for cancellation
-        if (ride.getCancellationPolicy() == CancellationPolicy.NOT_ALLOWED) {
-            findViewById(R.id.ride_status_cancel_ride_btn).setEnabled(false);
+        if (ride.getCancellationPolicy() == CancellationPolicy.ALLOWED) {
+            cancelRideButton.setEnabled(true);
+        } else {
+            cancelRideButton.setEnabled(false);
         }
     }
 

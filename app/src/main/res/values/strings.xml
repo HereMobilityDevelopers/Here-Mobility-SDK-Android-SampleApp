@@ -44,6 +44,8 @@
     <string name="ride_cancelled">Ride cancelled</string>
     <string name="ride_cancel_rejected">Cancellation request rejected by the supplier</string>
     <string name="subscribe_to_messages">Subscribe to messages</string>
+    <string name="provider_installer_failed">google play services is unavailable</string>
+    <string name="provider_installer_needs_update">install/update/enable Google Play services</string>
 
 
 </resources>
