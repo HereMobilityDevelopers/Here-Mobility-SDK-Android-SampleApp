@@ -131,10 +131,4 @@
         <item name="colorControlActivated">@color/colorPrimaryDark</item>
     </style>
 
-    <style name="RegistrationDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <item name="colorAccent">@color/colorPrimary</item>
-        <item name="colorControlHighlight">@color/colorPrimaryDark</item>
-        <item name="colorControlActivated">@color/colorPrimaryDark</item>
-    </style>
-
 </resources>

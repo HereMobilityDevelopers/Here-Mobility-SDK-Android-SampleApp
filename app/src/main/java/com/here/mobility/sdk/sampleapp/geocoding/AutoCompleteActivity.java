@@ -23,6 +23,7 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.here.mobility.sdk.common.util.Cancelable;
 import com.here.mobility.sdk.common.util.PermissionUtils;
+import com.here.mobility.sdk.core.geo.Address;
 import com.here.mobility.sdk.core.geo.LatLng;
 import com.here.mobility.sdk.core.net.ResponseException;
 import com.here.mobility.sdk.core.net.ResponseFuture;
@@ -61,6 +62,12 @@ public class AutoCompleteActivity extends AppCompatActivity {
 
 
     /**
+     * Address Result key for Intent.extra result.
+     */
+    public static final String ADDRESS_DATA = "ADDRESS";
+
+
+    /**
      * Geocoding Result Intent.extra. Use to pass {@link GeocodingResult} as a parameter to this activity.
      */
     private static final String EXTRA_GEOCODING_QUERY_KEY = "EXTRA_GEOCODING_QUERY";
@@ -81,11 +88,20 @@ public class AutoCompleteActivity extends AppCompatActivity {
 
 
     /**
+     * the selected Geocoding result.
+     */
+    private GeocodingResult selectedGeocodingResult;
+
+
+    /**
      * Auto-complete adapter.
      */
     private AutocompleteAdapter adapter;
 
 
+	/**
+	 * Provides our user's last known location.
+	 */
     private FusedLocationProviderClient fusedLocationClient;
 
 
@@ -173,12 +189,33 @@ public class AutoCompleteActivity extends AppCompatActivity {
      * Callback method called when an address item was clicked.
      */
     @NonNull
-    private AutocompleteAdapter.AutoCompleteItemClicked adapterListener = (int position, GeocodingResult selected) -> {
+    private AutocompleteAdapter.AutoCompleteItemClicked adapterListener = (int position, @NonNull GeocodingResult selected) -> {
+        this.selectedGeocodingResult = selected;
+        fetchAddressData(selected);
+    };
+
+
+    /**
+     * Prepare and sets the Intent to forward the selected Geocoding result and the Address data.
+     */
+    private void postSelectedAddress(@NonNull GeocodingResult selected, @NonNull Address address) {
         Intent resultIntent = new Intent();
         resultIntent.putExtra(GEOCODING_RESULT, selected);
+        resultIntent.putExtra(ADDRESS_DATA, address);
         setResult(RESULT_OK, resultIntent);
         finish();
-    };
+    }
+
+
+    /**
+     * Fetching the AddressData for the User's selected Geocoding result.
+	 * We want the AutoComplete to be fast and reactive so we'll Fetch the AddressData only after the user's selecting the Result,
+     * since the AutoComplete result contains only free text and we'll need the full Address Object.
+     */
+    private void fetchAddressData(@NonNull GeocodingResult selected) {
+        ResponseFuture<Address> addressDataResponse = autocompleteClient.getAddressDetails(selected, Locale.getDefault().getISO3Language());
+        addressDataResponse.registerListener(addressResponseListener);
+    }
 
 
     /**
@@ -247,6 +284,23 @@ public class AutoCompleteActivity extends AppCompatActivity {
         //Store it so we can cancel it when new request is sent.
         this.autocompleteResponseFuture = autocompleteResponse;
     }
+
+
+    /**
+     * Address response listener.
+     */
+    @NonNull
+    private ResponseListener<Address> addressResponseListener = new ResponseListener<Address>() {
+        @Override
+        public void onResponse(@NonNull  Address address) {
+            postSelectedAddress(selectedGeocodingResult, address);
+        }
+
+        @Override
+        public void onError(@NonNull ResponseException exception) {
+        	Toast.makeText(AutoCompleteActivity.this, exception.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    };
 
 
     /**

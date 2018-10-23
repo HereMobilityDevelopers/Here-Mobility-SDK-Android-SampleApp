@@ -27,6 +27,7 @@
         <activity android:name=".ride_status.RideStatusActivity" />
         <activity android:name=".rides.ActiveRidesActivity" />
         <activity android:name=".public_transport.PublicTransportActivity" />
+        <activity android:name=".registration.LoginActivity" />
 
         <meta-data
             android:name="com.here.mobility.sdk.API_KEY"
