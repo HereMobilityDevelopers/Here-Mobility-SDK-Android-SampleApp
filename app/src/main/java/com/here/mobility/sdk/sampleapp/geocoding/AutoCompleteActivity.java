@@ -117,7 +117,7 @@ public class AutoCompleteActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_geocoding);
-        autocompleteClient = GeocodingClient.newInstance(this);
+        autocompleteClient = GeocodingClient.newInstance();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         updateUI();

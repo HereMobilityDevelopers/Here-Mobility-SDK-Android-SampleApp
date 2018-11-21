@@ -2,8 +2,8 @@ package com.here.mobility.sdk.sampleapp;
 
 import android.support.multidex.MultiDexApplication;
 
-import com.here.mobility.sdk.core.HereMobilitySdk;
 import com.here.mobility.sdk.core.HereSdkInitializationException;
+import com.here.mobility.sdk.core.MobilitySdk;
 
 
 /**********************************************************
@@ -16,11 +16,11 @@ public class SampleApplication extends MultiDexApplication {
 	public void onCreate() {
 		super.onCreate();
 
-		//HereMobilitySdk initialization must be called in your app's onCreate() method to initialize the SDK.
-		HereMobilitySdk.init(this);
+		//MobilitySdk initialization must be called in your app's onCreate() method to initialize the SDK.
+		MobilitySdk.init(this);
 
 		//Returns whether the current process is the SDK agent process.
-		if (HereMobilitySdk.isHereAgentProcess(this)) {
+		if (MobilitySdk.getInstance().isHereAgentProcess()) {
 			return;
 		}
 

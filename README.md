@@ -71,7 +71,7 @@ The following code snippet shows how to retrieve routes with the given start and
 
 ```java
 //Initialize RouteClient.
-RoutingClient routingClient = RoutingClient.newInstance(this);
+RoutingClient routingClient = RoutingClient.newInstance();
 
 //Request route calculation between pickup to destination.
   RouteRequest routeRequest = RouteRequest.create(pickup, destination);
@@ -92,7 +92,7 @@ The HERE SDK Demand Kit allows you to request ride offers based on various param
 
 ```java
 //Initialize RouteClient.
-RoutingClient routingClient = RoutingClient.newInstance(this);
+RoutingClient routingClient = RoutingClient.newInstance();
 
 //Request route calculation between pickup to destination.
   RouteRequest routeRequest = RouteRequest.create(pickup, destination);
@@ -175,7 +175,7 @@ The HERE SDK Demand Kit allows you register for updates on a ride's progress, in
 ![Ride Updates](Assets/RideStatus.gif)
 
 ```java
-DemandClient demandClient = DemandClient.newInstance(this);
+DemandClient demandClient = DemandClient.newInstance();
 
 DemandClient.RideUpdateListener listener = new DemandClient.RideUpdateListener() {
         @Override

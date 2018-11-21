@@ -69,7 +69,7 @@ import java.util.Locale;
 /**********************************************************
  * Copyright © 2018 HERE Global B.V. All rights reserved. *
  **********************************************************/
-public class GetRidesActivity extends AppCompatActivity implements MapView.MapReadyListener, RideDetailsFragment.RideDetailsFragmentCallback {
+public class GetRidesActivity extends AppCompatActivity implements MapView.MapControllerListener, RideDetailsFragment.RideDetailsFragmentCallback {
 
 
 	/**
@@ -91,6 +91,13 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
 	 */
 	@NonNull
 	private static final int DESTINATION_GEOCODING_REQUEST = 2;
+
+
+	/**
+	 * Start activity for result destination id.
+	 */
+	@NonNull
+	private static final int LOGIN_REQUEST = 3;
 
 
 	/**
@@ -208,7 +215,7 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
 		setContentView(R.layout.activity_get_rides);
 
 		//Initialize DemandClient.
-		demandClient = DemandClient.newInstance(this);
+		demandClient = DemandClient.newInstance();
 
 		//MapFragment initialization.
 		MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map_fragment);
@@ -294,8 +301,14 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
 
 
 	@Override
-	public void onMapFailure(@NonNull Exception e) {
-		Log.e(LOG_TAG, "onMapFailure: ", e);
+	public void onMapInitializationFailure(@NonNull Exception e) {
+		Log.e(LOG_TAG, "onMapInitializationFailure: ", e);
+	}
+
+
+	@Override
+	public void onAuthenticationFailure(@NonNull UserAuthenticationException e) {
+		Log.e(LOG_TAG, "onMapAuthFailure: ", e);
 	}
 
 
@@ -330,6 +343,13 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
 						"%s, %s", destination.getTitle(), destination.getAddressText());
 				((TextView) findViewById(R.id.destAddressView))
 						.setText(address);
+			} else if (requestCode == LOGIN_REQUEST) {
+				if (mapController != null) {
+					// The loginActivity is on top of GetRidesActivity, and the latter tried to show a map before registering.
+					// This means that the map tiles failed since the user was not yet registered.
+					// So we need to refresh the loading tiles for the map to be presented correctly.
+					mapController.refreshLoadingTiles();
+				}
 			}
 		}
 		notifyRideDetailsChanged();
@@ -344,7 +364,7 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
 
 			//lazy initialization for RoutingClient.
 			if (routingClient == null) {
-				routingClient = RoutingClient.newInstance(this);
+				routingClient = RoutingClient.newInstance();
 			} else {
 				routingClient.cancelAllActiveRequests();
 			}
@@ -581,7 +601,7 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapRe
 	 * Show registration dialog.
 	 */
 	private void showLoginActivity() {
-	    startActivity(new Intent(this, LoginActivity.class));
+	    startActivityForResult(new Intent(this, LoginActivity.class), LOGIN_REQUEST);
 	}
 
 

@@ -124,7 +124,7 @@ public class LoginActivity extends AppCompatActivity {
     /**
      * SMS verification class response.
      */
-    private ResponseListener<Void> phoneVerificationResponse = new LoginResponseListener(R.string.login_sms_sent_successfully);
+    private ResponseListener<Void> phoneVerificationResponse = new LoginResponseListener(R.string.login_sms_sent_successfully, false);
 
 
     /**
@@ -147,7 +147,7 @@ public class LoginActivity extends AppCompatActivity {
     /**
      * verify phone response listener.
      */
-    private ResponseListener<Void> verifyPhoneFutureResponse = new LoginResponseListener(R.string.login_pin_verified_successfully);
+    private ResponseListener<Void> verifyPhoneFutureResponse = new LoginResponseListener(R.string.login_pin_verified_successfully, true);
 
 
     /**
@@ -159,15 +159,24 @@ public class LoginActivity extends AppCompatActivity {
         private final int successMessage;
 
 
-        LoginResponseListener(int successfulMessage) {
+        private final boolean shouldFinishOnSuccess;
+
+
+        LoginResponseListener(int successfulMessage, boolean shouldFinishOnSuccess) {
             this.successMessage = successfulMessage;
+            this.shouldFinishOnSuccess = shouldFinishOnSuccess;
         }
 
 
         @Override
         public void onResponse(Void aVoid) {
             Toast.makeText(LoginActivity.this, successMessage, Toast.LENGTH_LONG).show();
-            updateUserInfoUI();
+            if (shouldFinishOnSuccess) {
+                setResult(RESULT_OK);
+                finish();
+            } else {
+                updateUserInfoUI();
+            }
         }
 
 

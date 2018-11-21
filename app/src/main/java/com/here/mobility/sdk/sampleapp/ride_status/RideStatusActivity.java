@@ -128,7 +128,7 @@ public class RideStatusActivity extends AppCompatActivity {
         ride = getExtraRide();
 
         //Initialize DemandClient.
-        demandClient = DemandClient.newInstance(this);
+        demandClient = DemandClient.newInstance();
         initUI();
         setRideInfo(ride);
 

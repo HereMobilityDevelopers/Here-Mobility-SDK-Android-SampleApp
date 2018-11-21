@@ -72,7 +72,7 @@ public class RideOffersActivity extends AppCompatActivity implements RideOffersA
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ride_offers);
-        demandClient = DemandClient.newInstance(this);
+        demandClient = DemandClient.newInstance();
         updateUI();
     }
 
@@ -101,7 +101,7 @@ public class RideOffersActivity extends AppCompatActivity implements RideOffersA
 
     /**
      * Called when a ride offer was selected.
-     * @param The selected {@link RideOffer}.
+     * @param offer The selected {@link RideOffer}.
      */
     @Override
     public void offerItemSelected(@NonNull RideOffer offer) {

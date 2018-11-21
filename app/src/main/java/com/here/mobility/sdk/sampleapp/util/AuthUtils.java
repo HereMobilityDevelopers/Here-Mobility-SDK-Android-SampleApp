@@ -5,7 +5,7 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.here.mobility.sdk.common.util.AppBugException;
-import com.here.mobility.sdk.core.HereMobilitySdk;
+import com.here.mobility.sdk.core.MobilitySdk;
 import com.here.mobility.sdk.core.auth.HereSdkUserAuthInfo;
 
 import java.nio.charset.Charset;
@@ -84,6 +84,6 @@ public class AuthUtils {
                 hash);
 
         //set the user info.
-        HereMobilitySdk.setUserAuthInfo(userInfo);
+        MobilitySdk.getInstance().setUserAuthInfo(userInfo);
     }
 }
