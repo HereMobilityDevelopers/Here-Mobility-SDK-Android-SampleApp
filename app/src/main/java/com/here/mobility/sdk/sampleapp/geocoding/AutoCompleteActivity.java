@@ -1,10 +1,13 @@
 package com.here.mobility.sdk.sampleapp.geocoding;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Process;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -21,13 +24,12 @@ import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.here.mobility.sdk.common.util.Cancelable;
-import com.here.mobility.sdk.common.util.PermissionUtils;
 import com.here.mobility.sdk.core.geo.Address;
 import com.here.mobility.sdk.core.geo.LatLng;
 import com.here.mobility.sdk.core.net.ResponseException;
 import com.here.mobility.sdk.core.net.ResponseFuture;
 import com.here.mobility.sdk.core.net.ResponseListener;
+import com.here.mobility.sdk.core.util.Cancelable;
 import com.here.mobility.sdk.map.geocoding.GeocodingClient;
 import com.here.mobility.sdk.map.geocoding.GeocodingRequest;
 import com.here.mobility.sdk.map.geocoding.GeocodingResponse;
@@ -375,7 +377,7 @@ public class AutoCompleteActivity extends AppCompatActivity {
     @SuppressLint("MissingPermission")
     private void updateLastKnownLocation() {
 
-        if (!PermissionUtils.hasAnyLocationPermissions(this)) {
+        if (!hasAnyLocationPermissions()) {
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSIONS_CODE);
         }else{
             fusedLocationClient.getLastLocation()
@@ -386,5 +388,22 @@ public class AutoCompleteActivity extends AppCompatActivity {
                         }
                     });
         }
+    }
+
+
+    /**
+     * Returns whether we have either fine <strong>or</strong> coarse location permissions.
+     */
+    private boolean hasAnyLocationPermissions(){
+        return hasPermission(Manifest.permission.ACCESS_FINE_LOCATION) ||
+                hasPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
+    }
+
+
+    /**
+     * Returns whether we have been granted the given permission.
+     */
+    private boolean hasPermission(@NonNull String permission) {
+        return checkPermission(permission, android.os.Process.myPid(), Process.myUid()) == PackageManager.PERMISSION_GRANTED;
     }
 }

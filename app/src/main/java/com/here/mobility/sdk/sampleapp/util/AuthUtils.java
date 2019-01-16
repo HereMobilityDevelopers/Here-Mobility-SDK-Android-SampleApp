@@ -4,7 +4,6 @@ import android.support.annotation.NonNull;
 import android.util.Base64;
 import android.util.Log;
 
-import com.here.mobility.sdk.common.util.AppBugException;
 import com.here.mobility.sdk.core.MobilitySdk;
 import com.here.mobility.sdk.core.auth.HereSdkUserAuthInfo;
 
@@ -55,7 +54,7 @@ public class AuthUtils {
             return hash.toString();
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
             Log.wtf(LOG_TAG, "Failed generating HASH", e);
-            throw new AppBugException("Failed generating HASH", e);
+            throw new RuntimeException("Failed generating HASH", e);
         }
     }
 

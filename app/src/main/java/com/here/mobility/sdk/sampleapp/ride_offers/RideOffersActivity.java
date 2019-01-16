@@ -1,21 +1,28 @@
 package com.here.mobility.sdk.sampleapp.ride_offers;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.common.collect.Lists;
+import com.here.mobility.sdk.core.geo.Address;
 import com.here.mobility.sdk.core.net.ResponseException;
 import com.here.mobility.sdk.core.net.ResponseFuture;
 import com.here.mobility.sdk.core.net.ResponseListener;
+import com.here.mobility.sdk.core.auth.UserAuthenticationException;
 import com.here.mobility.sdk.demand.CreateRideRequest;
 import com.here.mobility.sdk.demand.DemandClient;
 import com.here.mobility.sdk.demand.PassengerDetails;
@@ -28,6 +35,7 @@ import com.here.mobility.sdk.demand.TaxiRideOffer;
 import com.here.mobility.sdk.sampleapp.R;
 import com.here.mobility.sdk.sampleapp.public_transport.PublicTransportActivity;
 import com.here.mobility.sdk.sampleapp.ride_status.RideStatusActivity;
+import com.here.mobility.sdk.sampleapp.registration.LoginActivity;
 
 
 import java.util.ArrayList;
@@ -82,6 +90,7 @@ public class RideOffersActivity extends AppCompatActivity implements RideOffersA
      */
     private void updateUI() {
         RecyclerView rideOffersList = findViewById(R.id.ride_offers_list);
+        TextView confirmedRouteTextView = findViewById(R.id.confirmedRouteTextView);
         RideOffersAdapter adapter = new RideOffersAdapter(this);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         rideOffersList.setLayoutManager(layoutManager);
@@ -95,7 +104,44 @@ public class RideOffersActivity extends AppCompatActivity implements RideOffersA
 
         //Received ride offers list from Intent.extra and update the list.
         ArrayList<RideOffer> rideOffers = getRideOffers();
+
+        //Sets the confirmed route message
+        String taxiOffersConfirmedRouteText = getTaxiOffersConfirmedRoute(rideOffers);
+        if(taxiOffersConfirmedRouteText != null) {
+            confirmedRouteTextView.setText(taxiOffersConfirmedRouteText);
+        } else {
+            confirmedRouteTextView.setVisibility(View.GONE);
+        }
+
         adapter.updateDataSource(rideOffers);
+    }
+
+
+	/**
+	 * checks if there is a taxi offer in the offers list, and if there is, gets the confirmed route
+	 * (in taxis the confirmed route {@link TaxiRideOffer#getRoute()} may be slightly different
+	 * from the requested route TaxiRideOffer#getRequestedRoute()).
+	 * @param rideOffers the list of ride offers
+	 * @return the message to display.
+	 */
+	@Nullable
+    private String getTaxiOffersConfirmedRoute(@NonNull ArrayList<RideOffer> rideOffers) {
+        for(RideOffer offer : rideOffers) {
+            if(offer.getType().equals(RideOffer.TransitType.TAXI)) {
+                TaxiRideOffer taxiRideOffer = (TaxiRideOffer) offer;
+                Address pickupAddress = taxiRideOffer.getRoute().getPickup().getAddress();
+                Address destinationAddress = taxiRideOffer.getRoute().getDestination().getAddress();
+                if(pickupAddress != null && destinationAddress != null) {
+                    //we take the first confirmed address, since it's the same for all taxi offers.
+                    return String.format(getString(R.string.confirmed_route_address),
+                            pickupAddress.getStreetName(),
+                            pickupAddress.getHouseNumber(),
+                            destinationAddress.getStreetName(),
+                            destinationAddress.getHouseNumber());
+                }
+            }
+        }
+        return null;
     }
 
 
@@ -159,9 +205,39 @@ public class RideOffersActivity extends AppCompatActivity implements RideOffersA
 
         @Override
         public void onError(@NonNull ResponseException e) {
-            Toast.makeText(RideOffersActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            if (e.getRootCause() instanceof UserAuthenticationException) {
+                showLoginAlert();
+            }
+            else{
+                Toast.makeText(RideOffersActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            }
+
         }
     };
+
+
+    private void showLoginAlert() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.Theme_AppCompat_DayNight_Dialog);
+        builder.setTitle(R.string.phone_verification_alert_title)
+                .setMessage(R.string.phone_verification_alert_message)
+                .setPositiveButton(R.string.phone_verification_continue_button_title ,
+                        (dialog, which) -> {
+                            showPhoneVerificationActivity();
+                            dialog.dismiss();
+                        })
+                .setNegativeButton(android.R.string.cancel,
+                        (dialog, which) -> dialog.dismiss());
+        builder.create().show();
+    }
+
+
+    /**
+     * Show phone verification activity.
+     */
+    private void showPhoneVerificationActivity() {
+        Intent phoneVerificationActivity= LoginActivity.createIntent(this, false, true);
+        startActivity(phoneVerificationActivity);
+    }
 
 
     @Override

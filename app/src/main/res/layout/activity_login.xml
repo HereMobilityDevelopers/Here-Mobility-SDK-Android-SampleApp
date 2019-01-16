@@ -13,6 +13,7 @@
 
 
     <android.support.v7.widget.LinearLayoutCompat
+        android:id="@+id/accountDetailView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
@@ -38,6 +39,7 @@
     </android.support.v7.widget.LinearLayoutCompat>
 
     <android.support.v7.widget.LinearLayoutCompat
+        android:id="@+id/userIdLoginView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
@@ -64,6 +66,7 @@
 
 
     <android.support.v7.widget.LinearLayoutCompat
+        android:id="@+id/phoneEnterLoginView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
@@ -90,6 +93,7 @@
     </android.support.v7.widget.LinearLayoutCompat>
 
     <android.support.v7.widget.LinearLayoutCompat
+        android:id="@+id/phoneVerificationLoginView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"

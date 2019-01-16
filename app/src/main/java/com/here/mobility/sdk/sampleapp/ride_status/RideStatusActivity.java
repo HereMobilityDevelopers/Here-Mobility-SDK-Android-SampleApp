@@ -23,6 +23,7 @@ import android.widget.Toast;
 
 import com.here.mobility.sdk.core.net.ResponseException;
 import com.here.mobility.sdk.core.net.ResponseListener;
+import com.here.mobility.sdk.demand.CancelRideRequest;
 import com.here.mobility.sdk.demand.CancellationInfo;
 import com.here.mobility.sdk.demand.CancellationPolicy;
 import com.here.mobility.sdk.demand.DemandClient;
@@ -184,7 +185,8 @@ public class RideStatusActivity extends AppCompatActivity {
 
 
     private void cancelRide(@NonNull Ride ride){
-        demandClient.cancelRide(ride.getRideId(), "user cancel").registerListener(
+        // if you use OTHER_PASSENGER_CANCEL_REASON - please also setReason with custom reason as well
+        demandClient.cancelRide(CancelRideRequest.builder(ride.getRideId(), CancelRideRequest.PassengerCancelReason.OTHER_PASSENGER_CANCEL_REASON).setReason("user cancel").build()).registerListener(
                 new ResponseListener<CancellationInfo>() {
                     @Override
                     public void onResponse(@NonNull CancellationInfo cancellationInfo) {

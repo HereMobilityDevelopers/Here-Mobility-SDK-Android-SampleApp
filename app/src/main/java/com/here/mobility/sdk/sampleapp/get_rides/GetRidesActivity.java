@@ -1,10 +1,13 @@
 package com.here.mobility.sdk.sampleapp.get_rides;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.os.Process;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -21,7 +24,7 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.security.ProviderInstaller;
 import com.google.common.collect.Lists;
-import com.here.mobility.sdk.common.util.PermissionUtils;
+import com.here.mobility.sdk.core.MobilitySdk;
 import com.here.mobility.sdk.core.auth.UserAuthenticationException;
 import com.here.mobility.sdk.core.geo.Address;
 import com.here.mobility.sdk.core.geo.LatLng;
@@ -94,7 +97,7 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapCo
 
 
 	/**
-	 * Start activity for result destination id.
+	 * Start activity for user id authorization.
 	 */
 	@NonNull
 	private static final int LOGIN_REQUEST = 3;
@@ -252,8 +255,13 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapCo
 	protected void onStart() {
 		super.onStart();
 
-		//Get Active rides.
-		getActiveRides();
+		if (MobilitySdk.getInstance().getUserAuthInfo() == null) {
+			showLoginActivity();
+		}
+		// User that not verified can only use mapServices, getVerticalCoverage, getOffers. To receive your active rides - your phone need to be verified.
+		if (MobilitySdk.getInstance().isVerified()) {
+			getActiveRides();
+		}
 	}
 
 
@@ -292,11 +300,28 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapCo
 		//Set map zoom.
 		mapController.setZoom(MAP_ZOOM);
 
-		if (!PermissionUtils.hasAnyLocationPermissions(this)) {
+		if (!hasAnyLocationPermissions()) {
 			ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSIONS_CODE);
 		} else {
 			startLocationUpdates();
 		}
+	}
+
+
+	/**
+	 * Returns whether we have either fine <strong>or</strong> coarse location permissions.
+	 */
+	private boolean hasAnyLocationPermissions(){
+		return hasPermission(Manifest.permission.ACCESS_FINE_LOCATION) ||
+				hasPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
+	}
+
+
+	/**
+	 * Returns whether we have been granted the given permission.
+	 */
+	private boolean hasPermission(@NonNull String permission) {
+		return checkPermission(permission, android.os.Process.myPid(), Process.myUid()) == PackageManager.PERMISSION_GRANTED;
 	}
 
 
@@ -601,7 +626,8 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapCo
 	 * Show registration dialog.
 	 */
 	private void showLoginActivity() {
-	    startActivityForResult(new Intent(this, LoginActivity.class), LOGIN_REQUEST);
+		Intent loginActivity = LoginActivity.createIntent(this, true, false);
+	    startActivityForResult(loginActivity, LOGIN_REQUEST);
 	}
 
 
