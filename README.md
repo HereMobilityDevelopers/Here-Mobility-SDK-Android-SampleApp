@@ -14,8 +14,7 @@ This repository contains the Sample application showing the use of the [HERE Mob
 
 ### Getting Access Credentials
 
-To use the HERE Mobility SDK, you'll need App ID key and App secret key values.
-To request these credentials, contact us at [mobility_developers@here.com]().
+To use the HERE Mobility SDK, you'll need App ID key and App secret key values. To get new app keys, sign up first to [Here Mobility Developer Zone](https://developer.mobility.here.com) and then register your app using the app bundle id/package name.
 
 ### Cloning the Sample App Git Repository
 
