@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
     defaultConfig {
         applicationId "com.here.mobility.sdk.sampleapp"
         minSdkVersion 16
@@ -26,7 +26,7 @@ android {
 
 dependencies {
     //Here mobility SDK version
-    def hereMobilitySdkVersion = '1.1.42'
+    def hereMobilitySdkVersion = '1.1.55'
 
     // Demand SDK accessing the demand API - requesting, booking and managing rides.
     implementation "com.here.mobility.sdk:demand:$hereMobilitySdkVersion"
@@ -35,9 +35,9 @@ dependencies {
     implementation "com.here.mobility.sdk:map:$hereMobilitySdkVersion"
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:27.1.1'
-    implementation 'com.android.support:design:27.1.1'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
-    implementation 'com.android.support:multidex:1.0.3'
+    implementation 'androidx.appcompat:appcompat:1.1.0-alpha01'
+    implementation 'com.google.android.material:material:1.1.0-alpha02'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-alpha3'
+    implementation 'androidx.multidex:multidex:2.0.1'
 
 }

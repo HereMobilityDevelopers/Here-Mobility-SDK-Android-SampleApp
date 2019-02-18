@@ -1,6 +1,6 @@
 package com.here.mobility.sdk.sampleapp.util;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Base64;
 import android.util.Log;
 

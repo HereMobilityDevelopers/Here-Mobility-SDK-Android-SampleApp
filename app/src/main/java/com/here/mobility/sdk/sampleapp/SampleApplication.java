@@ -1,6 +1,6 @@
 package com.here.mobility.sdk.sampleapp;
 
-import android.support.multidex.MultiDexApplication;
+import androidx.multidex.MultiDexApplication;
 
 import com.here.mobility.sdk.core.HereSdkInitializationException;
 import com.here.mobility.sdk.core.MobilitySdk;

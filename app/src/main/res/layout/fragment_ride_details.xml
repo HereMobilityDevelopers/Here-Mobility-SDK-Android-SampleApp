@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/white">
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/ride_details_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -34,7 +34,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/your_details" />
 
-            <android.support.design.widget.TextInputLayout
+            <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/nameTextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -54,9 +54,9 @@
                     android:nextFocusForward="@id/phoneEditText"
                     android:paddingLeft="@dimen/RideDetailsInnerMargin"
                     android:paddingRight="@dimen/RideDetailsInnerMargin" />
-            </android.support.design.widget.TextInputLayout>
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <android.support.design.widget.TextInputLayout
+            <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/phoneTextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -76,9 +76,9 @@
                     android:nextFocusForward="@id/notesEditText"
                     android:paddingLeft="@dimen/RideDetailsInnerMargin"
                     android:paddingRight="@dimen/RideDetailsInnerMargin" />
-            </android.support.design.widget.TextInputLayout>
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <android.support.design.widget.TextInputLayout
+            <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/notesTextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -98,7 +98,7 @@
                     android:inputType="text|textAutoComplete|textMultiLine"
                     android:paddingLeft="@dimen/RideDetailsInnerMargin"
                     android:paddingRight="@dimen/RideDetailsInnerMargin" />
-            </android.support.design.widget.TextInputLayout>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
                 style="@style/TitleTitle3LeftGray"
@@ -242,7 +242,7 @@
     </ScrollView>
 
 
-    <android.support.v7.widget.AppCompatButton
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/ride_details_action_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
