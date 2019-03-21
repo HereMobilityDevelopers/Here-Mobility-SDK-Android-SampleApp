@@ -217,7 +217,7 @@ public class LoginActivity extends AppCompatActivity {
 
 		@Override
 		public void onError(@NonNull ResponseException e) {
-			Toast.makeText(LoginActivity.this, e.getCause().getMessage(), Toast.LENGTH_LONG).show();
+			Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
 			updateUserInfoUI();
 		}
 	}

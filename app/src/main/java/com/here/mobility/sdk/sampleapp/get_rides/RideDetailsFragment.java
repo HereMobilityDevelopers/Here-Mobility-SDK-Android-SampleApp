@@ -2,6 +2,7 @@ package com.here.mobility.sdk.sampleapp.get_rides;
 
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
@@ -14,13 +15,16 @@ import androidx.appcompat.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.here.mobility.sdk.core.services.timezone.TimeZone;
 import com.here.mobility.sdk.demand.BookingConstraints;
+import com.here.mobility.sdk.demand.DemandDateTime;
 import com.here.mobility.sdk.demand.PassengerDetails;
 import com.here.mobility.sdk.sampleapp.R;
 import com.here.mobility.sdk.sampleapp.widget.CounterView;
@@ -53,7 +57,7 @@ public class RideDetailsFragment extends Fragment {
         void onRideDetailsFill(@NonNull PassengerDetails passengerDetails,
                                @NonNull BookingConstraints constraints,
                                @Nullable String note,
-                               @Nullable Long preBookTime,
+                               @Nullable DemandDateTime preBookTime,
                                boolean subscribeToMessages);
     }
 
@@ -94,10 +98,10 @@ public class RideDetailsFragment extends Fragment {
 
 
     /**
-     * Pre-booked timestamp; null means the ride should leave now.
+     * Pre-booked time null means the ride should leave now.
      */
     @Nullable
-    Long preBookTime;
+    DemandDateTime preBookTime;
 
 
     /**
@@ -255,11 +259,17 @@ public class RideDetailsFragment extends Fragment {
      * @param calendar A valid Calendar object.
      */
     private void setLeaveTime(@NonNull Calendar calendar) {
-        preBookTime = calendar.getTimeInMillis();
-        SimpleDateFormat simple = new SimpleDateFormat("HH:mm", Locale.getDefault());
-        simple.setTimeZone(calendar.getTimeZone());
-        String dateStr = simple.format(calendar.getTime());
+        String dateStr = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+                .format(calendar.getTime());
         leaveTime.setText(dateStr);
+
+        // Init DemandDateTime from calendar.
+        preBookTime = DemandDateTime.create(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH),
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE));
     }
 
 
@@ -271,22 +281,32 @@ public class RideDetailsFragment extends Fragment {
         //The minimum time for pre-book offers is NOW() + 30 minutes.
         calendar.add(Calendar.MINUTE, 30);
 
-        TimePickerDialog picker = new TimePickerDialog(getContext(), R.style.BookingDatePicker, (view, hourOfDay, minute) -> {
-            Calendar minimumTimeForPreBook = Calendar.getInstance();
-            minimumTimeForPreBook.add(Calendar.MINUTE, 30);
+        // Open DatePickerDialog to get the date.
+        new DatePickerDialog(getContext(), R.style.BookingDatePicker,
+                (datePicker, year, month, day) -> {
             Calendar pickerTime = Calendar.getInstance();
-            pickerTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
-            pickerTime.set(Calendar.MINUTE, minute);
-            //check if pickerTime is valid.
-            if (pickerTime.after(minimumTimeForPreBook)) {
-                setLeaveTime(pickerTime);
-            } else {
-                Toast.makeText(getContext(), R.string.invalid_prebooking_time, Toast.LENGTH_LONG).show();
-            }
+            pickerTime.set(Calendar.YEAR, year);
+            pickerTime.set(Calendar.MONTH, month);
+            pickerTime.set(Calendar.DAY_OF_MONTH, day);
 
-        }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true);
-        picker.setTitle(R.string.prebook_time_picker_title);
-        picker.show();
+            // Open TimePickerDialog to get the time.
+            TimePickerDialog picker = new TimePickerDialog(getContext(), R.style.BookingDatePicker, (view, hourOfDay, minute) -> {
+                Calendar minimumTimeForPreBook = Calendar.getInstance();
+                minimumTimeForPreBook.add(Calendar.MINUTE, 30);
+
+                pickerTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                pickerTime.set(Calendar.MINUTE, minute);
+                //check if pickerTime is valid.
+                if (pickerTime.after(minimumTimeForPreBook)) {
+                    setLeaveTime(pickerTime);
+                } else {
+                    Toast.makeText(getContext(), R.string.invalid_prebooking_time, Toast.LENGTH_LONG).show();
+                }
+
+            }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true);
+            picker.setTitle(R.string.prebook_time_picker_title);
+            picker.show();
+        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
     }
 
 

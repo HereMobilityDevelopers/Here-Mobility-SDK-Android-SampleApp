@@ -70,24 +70,24 @@ public class RidesAdapter extends RecyclerView.Adapter<RidesAdapter.RideItem> {
 
         Ride ride = dataSource.get(position);
 
-        if (ride.getSupplier() != null){
-            holder.supplierName.setText(ride.getSupplier().getEnglishName());
-        }
+        holder.supplierName.setText(ride.getSupplier().getEnglishName());
         PriceEstimate price = ride.getBookingEstimatedPrice();
 
-        //Price can be fixed or range of prices.
-        //The best practice to show price is by calling toPlainString()
-        if(price.isFixedPrice()){
-            holder.estimatedPrice.setText(
-                    String.format(Locale.getDefault(),"%s %s",
-                            price.getFixedPrice().getAmount().toPlainString(),
-                            price.getFixedPrice().getCurrencyCode()));
-        }else if (price.isRange()){
-            holder.estimatedPrice.setText(
-                    String.format(Locale.getDefault(),"%s - %s %s",
-                            price.getPriceRange().getLowerBound().toPlainString(),
-                            price.getPriceRange().getUpperBound().toPlainString(),
-                            price.getPriceRange().getCurrencyCode()));
+        if (price != null) {
+            // Price can be fixed or range of prices.
+            // The best practice to show price is by calling toPlainString()
+            if (price.isFixedPrice()) {
+                holder.estimatedPrice.setText(
+                        String.format(Locale.getDefault(), "%s %s",
+                                price.getFixedPrice().getAmount().toPlainString(),
+                                price.getFixedPrice().getCurrencyCode()));
+            } else if (price.isRange()) {
+                holder.estimatedPrice.setText(
+                        String.format(Locale.getDefault(), "%s - %s %s",
+                                price.getPriceRange().getLowerBound().toPlainString(),
+                                price.getPriceRange().getUpperBound().toPlainString(),
+                                price.getPriceRange().getCurrencyCode()));
+            }
         }
 
         Long etaTimestamp = ride.getPrebookPickupTime();

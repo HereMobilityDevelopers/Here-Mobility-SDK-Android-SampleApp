@@ -243,7 +243,7 @@ public class RideStatusActivity extends AppCompatActivity {
 
         @Override
         public void onErrorOccurred(@NonNull Throwable throwable) {
-            runOnUiThread(() -> Toast.makeText(RideStatusActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show());
+            runOnUiThread(() -> Toast.makeText(RideStatusActivity.this, throwable.getMessage(), Toast.LENGTH_SHORT).show());
         }
     };
 

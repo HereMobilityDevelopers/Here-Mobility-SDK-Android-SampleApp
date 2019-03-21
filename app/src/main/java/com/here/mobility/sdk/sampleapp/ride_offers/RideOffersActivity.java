@@ -203,11 +203,11 @@ public class RideOffersActivity extends AppCompatActivity implements RideOffersA
 
         @Override
         public void onError(@NonNull ResponseException e) {
-            if (e.getRootCause() instanceof UserAuthenticationException) {
+            if (e instanceof UserAuthenticationException) {
                 showLoginAlert();
             }
             else{
-                Toast.makeText(RideOffersActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(RideOffersActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
 
         }

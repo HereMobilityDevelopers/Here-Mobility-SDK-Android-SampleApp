@@ -7,12 +7,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Process;
-import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
-import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -23,15 +17,20 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.security.ProviderInstaller;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.here.mobility.sdk.core.MobilitySdk;
 import com.here.mobility.sdk.core.auth.UserAuthenticationException;
 import com.here.mobility.sdk.core.geo.Address;
 import com.here.mobility.sdk.core.geo.LatLng;
 import com.here.mobility.sdk.core.net.ResponseException;
-import com.here.mobility.sdk.core.net.ResponseFuture;
 import com.here.mobility.sdk.core.net.ResponseListener;
+import com.here.mobility.sdk.core.services.timezone.TimeZoneClient;
 import com.here.mobility.sdk.demand.BookingConstraints;
 import com.here.mobility.sdk.demand.DemandClient;
+import com.here.mobility.sdk.demand.DemandDateTime;
 import com.here.mobility.sdk.demand.PassengerDetails;
 import com.here.mobility.sdk.demand.PublicTransportRideOffer;
 import com.here.mobility.sdk.demand.Ride;
@@ -67,6 +66,13 @@ import com.here.mobility.sdk.sampleapp.util.Constant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
 
 /**********************************************************
  * Copyright © 2018 HERE Global B.V. All rights reserved. *
@@ -185,6 +191,12 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapCo
 	 * Use DemandClient to request ride offers.
 	 */
 	private DemandClient demandClient;
+
+
+	/**
+	 * Use TimeZoneClient to find the pickup timezone.
+	 */
+	private TimeZoneClient timeZoneClient;
 
 
 	/**
@@ -475,10 +487,35 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapCo
 	public void onRideDetailsFill(@NonNull PassengerDetails passengerDetails,
 								  @NonNull BookingConstraints constraints,
 								  @Nullable String note,
-								  @Nullable Long preBookTime,
+								  @Nullable DemandDateTime preBookTime,
 								  boolean subscribeToMessages) {
 		this.passengerDetails = passengerDetails;
-		this.ridePreferences = RidePreferences.create(subscribeToMessages);
+		this.ridePreferences = RidePreferences.builder()
+				.setSubscribeToMessages(subscribeToMessages)
+				.build();
+
+		// Transform a ride offers request to RideOffersRequest creation.
+		// It's important to calculate the Epoch pre-book time by using the correct pickup TimeZone to prevent mismatch TimeZone.
+		ListenableFuture<List<RideOffer>> responseFuture = Futures.transformAsync(
+				createRideOffersRequest(constraints, note, preBookTime),
+				demandClient::getRideOffers,
+				MoreExecutors.directExecutor());
+
+		Futures.addCallback(responseFuture, rideOffersFutureListener, MoreExecutors.directExecutor());
+	}
+
+
+	/**
+	 * Create a {@link RideOffersRequest} by the given argument.
+	 * If preBookTime is set, calculate the pre-book time since epoch in the pickup location timezone.
+	 *
+	 * @param constraints The booking constraint of the ride.
+	 * @param passengerNote Optional passenger note.
+	 * @param preBookTime The pre-booked pickup time for a future ride. Null for an immediate ride (leave now).
+	 */
+	private ListenableFuture<RideOffersRequest> createRideOffersRequest(@NonNull BookingConstraints constraints,
+																		@Nullable String passengerNote,
+																		@Nullable DemandDateTime preBookTime) {
 		Waypoint pickupWaypoint = Waypoint.builder(pickup.getLocation())
 				.setAddress(pickupAddress)
 				.build();
@@ -486,54 +523,49 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapCo
 				.setAddress(destinationAddress)
 				.build();
 		RideWaypoints rideWaypoints = RideWaypoints.create(pickupWaypoint, destinationWaypoint);
-		requestRideOffers(rideWaypoints, constraints, note, preBookTime);
-	}
 
-	/**
-	 * Request ride offers with the given details.
-	 */
-	private void requestRideOffers(@NonNull RideWaypoints rideWaypoints,
-								   @NonNull BookingConstraints constraints,
-								   @Nullable String passengerNote,
-								   @Nullable Long preBookTime) {
 		RideOffersRequest.Builder rideOfferBuilder = RideOffersRequest.builder()
 				.setConstraints(constraints)
 				.setRideWaypoints(rideWaypoints);
 
-		//set pre-book time, default is now.
-		if (preBookTime != null) {
-			rideOfferBuilder.setPrebookPickupTime(preBookTime);
-		}
-
-		//set passenger note
+		// set passenger note
 		if (passengerNote != null) {
 			rideOfferBuilder.setPassengerNote(passengerNote);
 		}
 
-		RideOffersRequest rideOffersRequest = rideOfferBuilder.build();
+		// set pre-book time, default is now.
+		if (preBookTime == null) {
+			return Futures.immediateFuture(rideOfferBuilder.build());
+		} else {
+			if (timeZoneClient == null) {
+				timeZoneClient = TimeZoneClient.newInstance();
+			}
 
-		//Request ride offers.
-		ResponseFuture<List<RideOffer>> offersFuture = demandClient.getRideOffers(rideOffersRequest);
-
-		//Register offers future listener.
-		offersFuture.registerListener(rideOffersFutureListener);
-
+			// Use TimeZoneClient to get the pickup timezone.
+			// Use DemandDateTime to get the pre-book time since epoch by the given pickup timezone.
+			return Futures.transform(timeZoneClient.findTimeZone(pickupWaypoint.getLocation()),
+					timeZone -> rideOfferBuilder.setPrebookPickupTime(preBookTime.getEpochTime(timeZone)).build(),
+					MoreExecutors.directExecutor());
+		}
 	}
 
 
 	/**
 	 * A callback method that receives ride offers after a {@link DemandClient#getRideOffers(RideOffersRequest)} request.
 	 */
-	private ResponseListener<List<RideOffer>> rideOffersFutureListener = new ResponseListener<List<RideOffer>>() {
+	@NonNull
+	private FutureCallback<List<RideOffer>> rideOffersFutureListener = new FutureCallback<List<RideOffer>>() {
+
+
 		@Override
-		public void onResponse(@NonNull List<RideOffer> rideOffers) {
-			showRideOffersActivity(rideOffers);
+		public void onSuccess(@NonNull List<RideOffer> rideOffers) {
+			runOnUiThread(() -> showRideOffersActivity(rideOffers));
 		}
 
 
 		@Override
-		public void onError(@NonNull ResponseException e) {
-			Toast.makeText(GetRidesActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+		public void onFailure(@NonNull Throwable t) {
+			runOnUiThread(() -> Toast.makeText(GetRidesActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show());
 		}
 	};
 
@@ -543,7 +575,7 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapCo
 	 *
 	 * @param rideOffers The list of ride offers.
 	 */
-	private void showRideOffersActivity(List<RideOffer> rideOffers) {
+	private void showRideOffersActivity(@NonNull List<RideOffer> rideOffers) {
 		if (passengerDetails != null) {
 
 			if (rideOffers.size() > 0) {
@@ -612,7 +644,7 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapCo
 			// again with a valid token, and initiate the SDK API call again.
 			// Note that this exception can be returned from any API call, so this error handling should
 			// be implemented on every onError call.
-			if (e.getRootCause() instanceof UserAuthenticationException) {
+			if (e instanceof UserAuthenticationException) {
 				showLoginActivity();
 			} else {
 				Toast.makeText(GetRidesActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
@@ -662,6 +694,11 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapCo
 		//It's important to call shutdownNow function when the client is no longer needed.
 		if (demandClient != null) {
 			demandClient.shutdownNow();
+		}
+
+		//It's important to call shutdownNow function when the client is no longer needed.
+		if (timeZoneClient != null) {
+			timeZoneClient.shutdownNow();
 		}
 	}
 
