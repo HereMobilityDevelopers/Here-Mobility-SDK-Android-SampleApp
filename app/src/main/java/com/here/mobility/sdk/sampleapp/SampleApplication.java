@@ -4,6 +4,7 @@ import androidx.multidex.MultiDexApplication;
 
 import com.here.mobility.sdk.core.HereSdkInitializationException;
 import com.here.mobility.sdk.core.MobilitySdk;
+import com.here.mobility.sdk.sampleapp.util.AuthUtils;
 
 
 /**********************************************************
@@ -31,6 +32,9 @@ public class SampleApplication extends MultiDexApplication {
 		if (getString(R.string.here_sdk_app_id).equals(DEFAULT_APP_ID)) {
 			throw new HereSdkInitializationException("Missing App ID, Please replace the default App ID in the here_mobility_key.xml with your own");
 		}
+
+		//App login
+		AuthUtils.appLogin(getApplicationContext());
 
 		// Put the rest of your app's initialization here
 	}

@@ -22,6 +22,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.here.mobility.sdk.core.MobilitySdk;
+import com.here.mobility.sdk.core.auth.HMAuthException;
 import com.here.mobility.sdk.core.auth.UserAuthenticationException;
 import com.here.mobility.sdk.core.geo.Address;
 import com.here.mobility.sdk.core.geo.LatLng;
@@ -61,7 +62,9 @@ import com.here.mobility.sdk.sampleapp.geocoding.AutoCompleteActivity;
 import com.here.mobility.sdk.sampleapp.registration.LoginActivity;
 import com.here.mobility.sdk.sampleapp.ride_offers.RideOffersActivity;
 import com.here.mobility.sdk.sampleapp.rides.ActiveRidesActivity;
+import com.here.mobility.sdk.sampleapp.util.AuthUtils;
 import com.here.mobility.sdk.sampleapp.util.Constant;
+import com.here.mobility.sdk.sampleapp.util.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -265,12 +268,8 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapCo
 	@Override
 	protected void onStart() {
 		super.onStart();
-
-		if (MobilitySdk.getInstance().getUserAuthInfo() == null) {
-			showLoginActivity();
-		}
 		// User that not verified can only use mapServices, getVerticalCoverage, getOffers. To receive your active rides - your phone need to be verified.
-		if (MobilitySdk.getInstance().isVerified()) {
+		if (MobilitySdk.getInstance().isUserVerified()) {
 			getActiveRides();
 		}
 	}
@@ -345,6 +344,11 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapCo
 	@Override
 	public void onAuthenticationFailure(@NonNull UserAuthenticationException e) {
 		Log.e(LOG_TAG, "onMapAuthFailure: ", e);
+
+		//App login
+		AuthUtils.appLogin(getApplicationContext());
+
+		mapController.refreshLoadingTiles();
 	}
 
 
@@ -543,7 +547,7 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapCo
 
 			// Use TimeZoneClient to get the pickup timezone.
 			// Use DemandDateTime to get the pre-book time since epoch by the given pickup timezone.
-			return Futures.transform(timeZoneClient.findTimeZone(pickupWaypoint.getLocation()),
+			return Futures.transform(timeZoneClient.findTimeZone(pickupWaypoint.getLocation(), Utils.demandDateTimeToUTCEpoch(preBookTime)),
 					timeZone -> rideOfferBuilder.setPrebookPickupTime(preBookTime.getEpochTime(timeZone)).build(),
 					MoreExecutors.directExecutor());
 		}
@@ -639,12 +643,12 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapCo
 
 		@Override
 		public void onError(@NonNull ResponseException e) {
-			// If the user authentication token that was provided by HereMobilitySDK.setUserAuthInfo() is expired,
-			// UserAuthenticationException will be returned. To handle this, call HereMobilitySDK.setUserAuthInfo()
+			// If the app authentication token that was provided by HereMobilitySDK.authenticateApplication() is expired,
+			// HMAuthException will be returned. To handle this, call HereMobilitySDK.authenticateApplication()
 			// again with a valid token, and initiate the SDK API call again.
 			// Note that this exception can be returned from any API call, so this error handling should
 			// be implemented on every onError call.
-			if (e instanceof UserAuthenticationException) {
+			if (e instanceof HMAuthException) {
 				showLoginActivity();
 			} else {
 				Toast.makeText(GetRidesActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
@@ -657,7 +661,7 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapCo
 	 * Show registration dialog.
 	 */
 	private void showLoginActivity() {
-		Intent loginActivity = LoginActivity.createIntent(this, true, false);
+		Intent loginActivity = LoginActivity.createIntent(this);
 	    startActivityForResult(loginActivity, LOGIN_REQUEST);
 	}
 

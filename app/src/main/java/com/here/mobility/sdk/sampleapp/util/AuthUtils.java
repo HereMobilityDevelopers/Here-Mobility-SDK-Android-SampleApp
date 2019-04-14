@@ -1,11 +1,15 @@
 package com.here.mobility.sdk.sampleapp.util;
 
 import androidx.annotation.NonNull;
+
+import android.content.Context;
 import android.util.Base64;
 import android.util.Log;
 
+import com.here.mobility.sdk.core.ApplicationAuthInfo;
 import com.here.mobility.sdk.core.MobilitySdk;
-import com.here.mobility.sdk.core.auth.HereSdkUserAuthInfo;
+import com.here.mobility.sdk.core.net.ResponseFuture;
+import com.here.mobility.sdk.sampleapp.R;
 
 import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
@@ -25,64 +29,70 @@ public class AuthUtils {
 
 
     /**
-     * Generates HASH from User credentials.
+     * Generates HASH from Application credentials.
      *
      * @param appKey The app key
-     * @param userId The user identifier
-     * @param expiration The expiration of the token in seconds
-     * @param key The app secret
+     * @param currentTimeSec The creation tome of the token in seconds since epoch
+     * @param secretKey The app secret
      * @return The hashed string
      */
     @NonNull
-    public static String hashHmac(@NonNull String appKey, @NonNull String userId, long expiration, @NonNull String key) {
-
+    public static String hashHmac(@NonNull String appKey,
+                                  long currentTimeSec,
+                                  @NonNull String secretKey) {
         try {
-            Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
-            Charset ascii = Charset.forName("UTF-8");
-            SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(ascii), "HmacSHA256");
-            sha256_HMAC.init(secretKey);
-            String appKey64 = Base64.encodeToString(appKey.getBytes(ascii), Base64.NO_WRAP);
-            String userId64 = Base64.encodeToString(userId.getBytes(ascii), Base64.NO_WRAP);
+            Mac mac = Mac.getInstance("HmacSHA384");
+            Charset ascii = Charset.forName("US-ASCII");
+            mac.init(new SecretKeySpec(secretKey.getBytes(ascii), mac.getAlgorithm()));
 
-            String data = appKey64 + "." + userId64 + "." + Long.toString(expiration);
+            String apiKey64 = Base64.encodeToString(appKey.getBytes(ascii), Base64.NO_WRAP);
+            String data = apiKey64 + "." + currentTimeSec;
+            byte[] rawHash = mac.doFinal(data.getBytes(ascii));
 
-            byte[] rawHash = sha256_HMAC.doFinal(data.getBytes(ascii));
+            // Encode into a hexadecimal string
             StringBuilder hash = new StringBuilder();
-            for (byte b: rawHash) {
-                hash.append(String.format("%02x", b));
+            for (byte rawHashByte : rawHash) {
+                hash.append(String.format("%02x", rawHashByte));
             }
             return hash.toString();
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
             Log.wtf(LOG_TAG, "Failed generating HASH", e);
-            throw new RuntimeException("Failed generating HASH", e);
+            throw new IllegalStateException("HmacSHA384 and US-ASCII must be supported", e);
         }
     }
 
 
     /**
-     * Register user for the HERE Demand SDK.
-     * @param userID The user ID.
+     * App login for the HERE SDK.
      */
-    public static void registerUser(@NonNull String userID, @NonNull String appID, @NonNull String appSecret){
+    @NonNull
+    public static ResponseFuture<Void> appLogin(@NonNull Context context){
+        return appLogin(context.getString(R.string.here_sdk_app_id),
+                        context.getString(R.string.here_sdk_app_secret));
+    }
 
-        //expiration time in second.
-        long timeExpirationInSeconds = TimeUnit.MILLISECONDS.
-                toSeconds(System.currentTimeMillis()) + TimeUnit.HOURS.toSeconds(Constant.EXPIRATION_HOURS);
+
+    /**
+     * App login for the HERE Demand SDK.
+     */
+    @NonNull
+    public static ResponseFuture<Void> appLogin(@NonNull String appID, @NonNull String appSecret){
+
+        //creation time time in second.
+        long timeCreationInSeconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
 
         //create hash code.
         String hash = AuthUtils.hashHmac(
                 appID,
-                userID, //newUserId the user ID
-                (int)timeExpirationInSeconds, //newExpirationSec The expiration of the hash, in seconds since epoch
+                timeCreationInSeconds, //timeCreationInSeconds The creation of the hash, in seconds since epoch
                 appSecret);
 
         //create user info.
-        HereSdkUserAuthInfo userInfo = HereSdkUserAuthInfo.create(
-                userID,
-                (int) timeExpirationInSeconds,
-                hash);
+        ApplicationAuthInfo appInfo = ApplicationAuthInfo.create(
+                hash,
+                timeCreationInSeconds);
 
         //set the user info.
-        MobilitySdk.getInstance().setUserAuthInfo(userInfo);
+        return MobilitySdk.getInstance().authenticateApplication(appInfo);
     }
 }

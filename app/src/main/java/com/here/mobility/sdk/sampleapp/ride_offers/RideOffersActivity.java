@@ -233,7 +233,7 @@ public class RideOffersActivity extends AppCompatActivity implements RideOffersA
      * Show phone verification activity.
      */
     private void showPhoneVerificationActivity() {
-        Intent phoneVerificationActivity= LoginActivity.createIntent(this, false, true);
+        Intent phoneVerificationActivity = LoginActivity.createIntent(this);
         startActivity(phoneVerificationActivity);
     }
 

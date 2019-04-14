@@ -38,7 +38,7 @@
     <string name="active_rides">Active Rides</string>
     <string name="error_no_ride_options_results">No results found. Please try to search a ride again.</string>
     <string name="next">Next</string>
-    <string name="register">Register</string>
+    <string name="app_login">App Login</string>
     <string name="confirmed_route_address">The confirmed route for taxis may be slightly different from the requested route,
         the confirmed route is from street: %1$s, number: %2$s. to street: %3$s, number: %4$s.</string>
 
@@ -59,6 +59,7 @@
     <string name="login_phone_verification_button">Phone verification</string>
     <string name="login_pin_code_title">Pin code verification</string>
     <string name="login_sms_sent_successfully">SMS sent successfully</string>
+    <string name="login_app_successfully">App Logged in successfully</string>
     <string name="login_pin_verified_successfully">Phone verified successfully</string>
     <string name="login_not_logged_id">not logged in - set unique developer userID which combined with appKey and appSecret will allow use of Map, MapServices, DemandVerticalCoverage, DemandGetRides</string>
     <string name="login_not_verified">For demand services, phone verification is required.</string>
