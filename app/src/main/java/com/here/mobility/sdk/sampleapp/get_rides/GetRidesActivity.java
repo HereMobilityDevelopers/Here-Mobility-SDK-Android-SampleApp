@@ -354,6 +354,7 @@ public class GetRidesActivity extends AppCompatActivity implements MapView.MapCo
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
 
 		if (resultCode == RESULT_OK) {
 			if (requestCode == PICKUP_GEOCODING_REQUEST) {
